@@ -17,7 +17,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             defer: false
         )
         
-        window.contentViewController = NSHostingController(rootView: RootView())
+        window.contentViewController = NSHostingController(
+            rootView: RootView(
+                RootViewModel()
+            )
+        )
         
         window.isReleasedWhenClosed = false
         

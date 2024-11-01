@@ -7,13 +7,36 @@
 
 import SwiftUI
 
-struct RootView: View {
+struct RootView<Model: RootViewModelProtocol>: View {
+    @StateObject var model: Model
+    
+    init(_ model: Model) {
+        self._model = StateObject(wrappedValue: model)
+    }
+    
     var body: some View {
-        Text("Hello, World!")
-            .frame(width: 600, height: 400)
+        VStack {
+            Text("Hello, World!")
+            
+            Button("Start", action: self.model.start)
+                .disabled(self.model.isStarted)
+        }
+        .frame(width: 600, height: 400)
     }
 }
 
+#if DEBUG
+
 #Preview {
-    RootView()
+    RootView(MockRootViewModel())
 }
+
+final class MockRootViewModel: RootViewModelProtocol {
+    @Published private(set) var isStarted: Bool = false
+    
+    func start() {
+        self.isStarted.toggle()
+    }
+}
+
+#endif

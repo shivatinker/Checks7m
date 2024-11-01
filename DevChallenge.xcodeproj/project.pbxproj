@@ -6,9 +6,48 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		DA0C53162CD57C9400B846E5 /* DevChallengeXPC.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = DA0C530A2CD57C9400B846E5 /* DevChallengeXPC.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		DA0C53142CD57C9400B846E5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DA0C50502CD575F400B846E5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DA0C53092CD57C9400B846E5;
+			remoteInfo = DevChallengeXPC;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DA0C531B2CD57C9400B846E5 /* Embed XPC Services */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/XPCServices";
+			dstSubfolderSpec = 16;
+			files = (
+				DA0C53162CD57C9400B846E5 /* DevChallengeXPC.xpc in Embed XPC Services */,
+			);
+			name = "Embed XPC Services";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		DA0C50582CD575F400B846E5 /* DevChallenge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DevChallenge.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DA0C530A2CD57C9400B846E5 /* DevChallengeXPC.xpc */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = DevChallengeXPC.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		DA0C53172CD57C9400B846E5 /* Exceptions for "DevChallengeXPC" folder in "DevChallengeXPC" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = DA0C53092CD57C9400B846E5 /* DevChallengeXPC */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		DA0C505A2CD575F400B846E5 /* DevChallenge */ = {
@@ -16,10 +55,25 @@
 			path = DevChallenge;
 			sourceTree = "<group>";
 		};
+		DA0C530B2CD57C9400B846E5 /* DevChallengeXPC */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				DA0C53172CD57C9400B846E5 /* Exceptions for "DevChallengeXPC" folder in "DevChallengeXPC" target */,
+			);
+			path = DevChallengeXPC;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		DA0C50552CD575F400B846E5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DA0C53072CD57C9400B846E5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -33,6 +87,7 @@
 			isa = PBXGroup;
 			children = (
 				DA0C505A2CD575F400B846E5 /* DevChallenge */,
+				DA0C530B2CD57C9400B846E5 /* DevChallengeXPC */,
 				DA0C50592CD575F400B846E5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +96,7 @@
 			isa = PBXGroup;
 			children = (
 				DA0C50582CD575F400B846E5 /* DevChallenge.app */,
+				DA0C530A2CD57C9400B846E5 /* DevChallengeXPC.xpc */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -55,10 +111,12 @@
 				DA0C50542CD575F400B846E5 /* Sources */,
 				DA0C50552CD575F400B846E5 /* Frameworks */,
 				DA0C50562CD575F400B846E5 /* Resources */,
+				DA0C531B2CD57C9400B846E5 /* Embed XPC Services */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				DA0C53152CD57C9400B846E5 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				DA0C505A2CD575F400B846E5 /* DevChallenge */,
@@ -69,6 +127,28 @@
 			productName = DevChallenge;
 			productReference = DA0C50582CD575F400B846E5 /* DevChallenge.app */;
 			productType = "com.apple.product-type.application";
+		};
+		DA0C53092CD57C9400B846E5 /* DevChallengeXPC */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DA0C53182CD57C9400B846E5 /* Build configuration list for PBXNativeTarget "DevChallengeXPC" */;
+			buildPhases = (
+				DA0C53062CD57C9400B846E5 /* Sources */,
+				DA0C53072CD57C9400B846E5 /* Frameworks */,
+				DA0C53082CD57C9400B846E5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				DA0C530B2CD57C9400B846E5 /* DevChallengeXPC */,
+			);
+			name = DevChallengeXPC;
+			packageProductDependencies = (
+			);
+			productName = DevChallengeXPC;
+			productReference = DA0C530A2CD57C9400B846E5 /* DevChallengeXPC.xpc */;
+			productType = "com.apple.product-type.xpc-service";
 		};
 /* End PBXNativeTarget section */
 
@@ -83,6 +163,9 @@
 					DA0C50572CD575F400B846E5 = {
 						CreatedOnToolsVersion = 16.1;
 						LastSwiftMigration = 1610;
+					};
+					DA0C53092CD57C9400B846E5 = {
+						CreatedOnToolsVersion = 16.1;
 					};
 				};
 			};
@@ -101,12 +184,20 @@
 			projectRoot = "";
 			targets = (
 				DA0C50572CD575F400B846E5 /* DevChallenge */,
+				DA0C53092CD57C9400B846E5 /* DevChallengeXPC */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		DA0C50562CD575F400B846E5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DA0C53082CD57C9400B846E5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -123,7 +214,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DA0C53062CD57C9400B846E5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		DA0C53152CD57C9400B846E5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DA0C53092CD57C9400B846E5 /* DevChallengeXPC */;
+			targetProxy = DA0C53142CD57C9400B846E5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		DA0C50652CD575F400B846E5 /* Debug */ = {
@@ -303,6 +409,52 @@
 			};
 			name = Release;
 		};
+		DA0C53192CD57C9400B846E5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = DevChallengeXPC/DevChallengeXPC.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DevChallengeXPC/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = DevChallengeXPC;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.shivatinker.DevChallengeXPC;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		DA0C531A2CD57C9400B846E5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = DevChallengeXPC/DevChallengeXPC.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DevChallengeXPC/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = DevChallengeXPC;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.shivatinker.DevChallengeXPC;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -320,6 +472,15 @@
 			buildConfigurations = (
 				DA0C50682CD575F400B846E5 /* Debug */,
 				DA0C50692CD575F400B846E5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DA0C53182CD57C9400B846E5 /* Build configuration list for PBXNativeTarget "DevChallengeXPC" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DA0C53192CD57C9400B846E5 /* Debug */,
+				DA0C531A2CD57C9400B846E5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
