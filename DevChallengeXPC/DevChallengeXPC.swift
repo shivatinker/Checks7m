@@ -18,7 +18,7 @@ import Foundation
         for files: [String],
         outputURL: String,
         type: ChecksumType,
-        completionHandler: @escaping (Error?) -> Void
+        completionHandler: @escaping (String?, Error?) -> Void
     )
 }
 
@@ -30,18 +30,23 @@ class DevChallengeXPC: NSObject, DevChallengeXPCProtocol {
         for files: [String],
         outputURL: String,
         type: ChecksumType,
-        completionHandler: @escaping ((any Error)?) -> Void
+        completionHandler: @escaping (String?, Error?) -> Void
     ) {
+        let listener = self.connection.remoteObjectProxy as! DevChallengeXPCListener
+        
         let generator = ChecksumGenerator(checksumType: type)
         
         do {
-            let file = try generator.generateChecksums(for: files.map { URL(filePath: $0) })
+            let file = try generator.generateChecksums(for: files.map { URL(filePath: $0) }) { progress in
+                listener.handleProgress(progress)
+            }
+            
             let data = file.makeData()
             try data.write(to: URL(filePath: outputURL))
-            completionHandler(nil)
+            completionHandler(outputURL, nil)
         }
         catch {
-            completionHandler(error)
+            completionHandler(nil, error)
         }
     }
 }

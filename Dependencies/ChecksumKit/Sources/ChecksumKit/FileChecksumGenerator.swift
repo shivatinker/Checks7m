@@ -15,7 +15,7 @@ protocol ChecksumContext {
 }
 
 @objc
-public enum ChecksumType: Int {
+public enum ChecksumType: Int, CaseIterable, Sendable {
     case md5 = 0
     case sha256
     

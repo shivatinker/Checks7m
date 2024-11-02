@@ -27,8 +27,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         
         DispatchQueue.main.async {
             window.makeKeyAndOrderFront(nil)
-            window.setFrameAutosaveName("Main")
-            window.setFrame(from: "Main")
+//            window.setFrameAutosaveName("Main")
+//            window.setFrame(from: "Main")
+            window.center()
         }
     }
     

@@ -57,4 +57,8 @@ public struct ChecksumFile {
     public mutating func add(file: URL, checksum: Data) {
         self.files[file] = checksum
     }
+    
+    public func hasChecksum(for file: URL) -> Bool {
+        self.files.keys.contains(file)
+    }
 }

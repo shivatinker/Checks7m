@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		DA0C53162CD57C9400B846E5 /* DevChallengeXPC.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = DA0C530A2CD57C9400B846E5 /* DevChallengeXPC.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		DAFEE0FB2CD6365B00EED27C /* ChecksumKit in Frameworks */ = {isa = PBXBuildFile; productRef = DAFEE0FA2CD6365B00EED27C /* ChecksumKit */; };
+		DAFEE0FD2CD648F800EED27C /* ChecksumKit in Frameworks */ = {isa = PBXBuildFile; productRef = DAFEE0FC2CD648F800EED27C /* ChecksumKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -90,6 +91,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DAFEE0FD2CD648F800EED27C /* ChecksumKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -163,6 +165,7 @@
 			);
 			name = DevChallenge;
 			packageProductDependencies = (
+				DAFEE0FC2CD648F800EED27C /* ChecksumKit */,
 			);
 			productName = DevChallenge;
 			productReference = DA0C50582CD575F400B846E5 /* DevChallenge.app */;
@@ -619,6 +622,10 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		DAFEE0FA2CD6365B00EED27C /* ChecksumKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ChecksumKit;
+		};
+		DAFEE0FC2CD648F800EED27C /* ChecksumKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ChecksumKit;
 		};

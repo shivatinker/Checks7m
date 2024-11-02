@@ -5,9 +5,11 @@
 //  Created by Andrii Zinoviev on 01.11.2024.
 //
 
+import ChecksumKit
 import SwiftUI
 
 struct RootView<Model: RootViewModelProtocol>: View {
+    @State var selection: Set<URL> = []
     @StateObject var model: Model
     
     init(_ model: Model) {
@@ -15,19 +17,91 @@ struct RootView<Model: RootViewModelProtocol>: View {
     }
     
     var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                VStack(spacing: 0) {
+                    List(
+                        self.model.files.sorted(using: KeyPathComparator(\.absoluteString)),
+                        id: \.self,
+                        selection: self.$selection
+                    ) { url in
+                        Text(url.lastPathComponent)
+                    }
+                    
+                    Divider()
+                    
+                    HStack {
+                        Button("Add") {
+                            self.model.addFiles()
+                        }
+                        
+                        Button("Remove") {
+                            self.model.removeFiles(self.selection)
+                        }
+                        .disabled(self.selection.isEmpty)
+                        
+                        Spacer()
+                    }
+                    .padding(4)
+                }
+                .frame(width: 300)
+                
+                Divider()
+                
+                self.makeControlPanel()
+                    .frame(width: 300)
+            }
+            
+            Divider()
+            
+            self.makeStatusBar()
+        }
+        .frame(height: 400)
+    }
+    
+    @ViewBuilder
+    private func makeControlPanel() -> some View {
         VStack {
+            Picker("Checksum Type", selection: self.$model.checksumType) {
+                ForEach(ChecksumType.allCases, id: \.self) { type in
+                    switch type {
+                    case .md5:
+                        Text("MD5")
+                        
+                    case .sha256:
+                        Text("SHA256")
+                    }
+                }
+            }
+            .pickerStyle(RadioGroupPickerStyle())
+            
+            Button("Generate Checksums") {
+                self.model.generateChecksums()
+            }
+            .disabled(false == self.model.isActionEnabled)
+        }
+    }
+    
+    @ViewBuilder
+    private func makeStatusBar() -> some View {
+        HStack {
             switch self.model.state {
             case .ready:
                 Text("Ready")
                 
             case let .progress(progress):
-                if let progress {
-                    ProgressView(value: progress)
+                HStack {
+                    Text("Processing...")
+                    
+                    if let progress {
+                        ProgressView(value: progress)
+                    }
+                    else {
+                        ProgressView()
+                            .progressViewStyle(LinearProgressViewStyle())
+                    }
                 }
-                else {
-                    ProgressView()
-                        .progressViewStyle(LinearProgressViewStyle())
-                }
+                .frame(width: 250)
                 
             case let .done(digest):
                 Text(digest)
@@ -36,24 +110,11 @@ struct RootView<Model: RootViewModelProtocol>: View {
                 Text(error)
                     .foregroundStyle(.red)
             }
-            
-            Button("Open") {
-                let panel = NSOpenPanel()
-                panel.allowsMultipleSelection = true
-                panel.canChooseDirectories = true
-                
-                let response = panel.runModal()
-                
-                guard response == .OK, false == panel.urls.isEmpty else {
-                    return
-                }
-                
-                self.model.processFiles(panel.urls)
-            }
-            .disabled(self.model.state.isStartDisabled)
         }
-        .frame(width: 200)
-        .frame(width: 600, height: 400)
+        .frame(maxWidth: .infinity, alignment: .trailing)
+        .frame(height: 25)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 4)
     }
 }
 
@@ -61,11 +122,6 @@ struct RootView<Model: RootViewModelProtocol>: View {
 
 #Preview {
     RootView(MockRootViewModel())
-}
-
-final class MockRootViewModel: RootViewModelProtocol {
-    let state: RootViewState = .progress(nil)
-    func processFiles(_ urls: [URL]) {}
 }
 
 #endif
