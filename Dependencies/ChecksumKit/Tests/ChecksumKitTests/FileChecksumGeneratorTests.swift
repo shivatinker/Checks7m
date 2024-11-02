@@ -2,8 +2,6 @@
 //  FileChecksumGeneratorTests.swift
 //  ChecksumKit
 //
-//  Created by Andrii Zinoviev on 02.11.2024.
-//
 
 import ChecksumKit
 import XCTest

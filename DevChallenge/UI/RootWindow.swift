@@ -2,8 +2,6 @@
 //  RootWindow.swift
 //  DevChallenge
 //
-//  Created by Andrii Zinoviev on 02.11.2024.
-//
 
 import AppKit
 import SwiftUI

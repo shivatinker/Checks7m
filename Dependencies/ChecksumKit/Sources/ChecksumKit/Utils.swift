@@ -2,8 +2,6 @@
 //  Utils.swift
 //  ChecksumKit
 //
-//  Created by Andrii Zinoviev on 02.11.2024.
-//
 
 import Foundation
 
@@ -37,6 +35,10 @@ extension FileManager {
 extension URL {
     static func closestCommonPath(for urls: [URL]) -> String? {
         guard let firstURL = urls.first else { return nil }
+        
+        if urls.count == 1 {
+            return firstURL.standardized.resolvingSymlinksInPath().deletingLastPathComponent().path
+        }
         
         var commonPathComponents = firstURL.standardized.resolvingSymlinksInPath().pathComponents
         

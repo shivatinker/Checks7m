@@ -2,8 +2,6 @@
 //  RootView.swift
 //  DevChallenge
 //
-//  Created by Andrii Zinoviev on 01.11.2024.
-//
 
 import ChecksumKit
 import SwiftUI

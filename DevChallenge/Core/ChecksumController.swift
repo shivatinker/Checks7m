@@ -2,8 +2,6 @@
 //  ChecksumController.swift
 //  DevChallenge
 //
-//  Created by Andrii Zinoviev on 02.11.2024.
-//
 
 import ChecksumKit
 import DevChallengeXPC
@@ -94,7 +92,7 @@ actor ChecksumController {
     ) throws -> DevChallengeXPCProtocol {
         precondition(self.connection == nil)
         
-        let connectionToService = NSXPCConnection(serviceName: "com.shivatinker.DevChallengeXPC")
+        let connectionToService = NSXPCConnection(serviceName: "com.devchallenge.DevChallengeXPC")
         connectionToService.remoteObjectInterface = NSXPCInterface(with: DevChallengeXPCProtocol.self)
         connectionToService.exportedInterface = NSXPCInterface(with: DevChallengeXPCListener.self)
         

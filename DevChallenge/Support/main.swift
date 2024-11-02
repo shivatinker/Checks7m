@@ -2,8 +2,6 @@
 //  main.swift
 //  DevChallenge
 //
-//  Created by Andrii Zinoviev on 01.11.2024.
-//
 
 import AppKit
 

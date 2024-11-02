@@ -2,8 +2,6 @@
 //  URLExtensionsTests.swift
 //  ChecksumKit
 //
-//  Created by Andrii Zinoviev on 02.11.2024.
-//
 
 @testable import ChecksumKit
 import XCTest
@@ -27,6 +25,14 @@ final class URLExtensionsTests: XCTestCase {
         ])
         
         XCTAssertEqual(commonPath, "/")
+    }
+    
+    func testSingleCommonPath() {
+        let commonPath = URL.closestCommonPath(for: [
+            URL(filePath: "/foo/bar/baz/1.txt"),
+        ])
+        
+        XCTAssertEqual(commonPath, "/foo/bar/baz")
     }
     
     func testRelativaPath() {

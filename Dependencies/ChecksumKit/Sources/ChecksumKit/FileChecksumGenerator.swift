@@ -2,8 +2,6 @@
 //  FileChecksumGenerator.swift
 //  DevChallenge
 //
-//  Created by Andrii Zinoviev on 02.11.2024.
-//
 
 import CommonCrypto
 import Foundation

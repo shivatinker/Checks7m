@@ -2,8 +2,6 @@
 //  DevChallengeXPC.swift
 //  DevChallengeXPC
 //
-//  Created by Andrii Zinoviev on 01.11.2024.
-//
 
 import ChecksumKit
 import Foundation
