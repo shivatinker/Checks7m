@@ -8,11 +8,15 @@
 import Foundation
 
 public struct ChecksumValidator {
-    struct Error: Swift.Error {
+    struct Error: Swift.Error, LocalizedError {
         let description: String
         
         init(_ description: String) {
             self.description = description
+        }
+        
+        var errorDescription: String? {
+            self.description
         }
     }
     

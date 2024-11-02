@@ -185,8 +185,8 @@ struct RootView<Model: RootViewModelProtocol>: View {
             case let .done(digest):
                 Text(digest)
                 
-            case let .error(error):
-                Text(error)
+            case .error:
+                Text("Error")
                     .foregroundStyle(.red)
             }
         }

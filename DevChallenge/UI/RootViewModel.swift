@@ -13,7 +13,7 @@ enum RootViewState {
     case ready
     case progress(Double?)
     case done(String)
-    case error(String)
+    case error
 }
 
 @MainActor
@@ -90,6 +90,12 @@ final class RootViewModel: RootViewModelProtocol {
     
     @Published private(set) var loadedChecksumFile: URL?
     
+    private let modalContext: ModalContext
+    
+    init(modalContext: ModalContext) {
+        self.modalContext = modalContext
+    }
+    
     var isGenerateEnabled: Bool {
         if case .progress = self.state {
             return false
@@ -124,7 +130,8 @@ final class RootViewModel: RootViewModelProtocol {
                 self.viewChecksums()
             }
             catch {
-                self.state = .error("\(error)")
+                self.modalContext.showError("Failed to generate checksums", error)
+                self.state = .error
             }
         }
     }
@@ -208,9 +215,11 @@ final class RootViewModel: RootViewModelProtocol {
                 
                 try result.get()
                 self.state = .done("Checksum validated")
+                self.modalContext.showMessage("Success", "Checksum matches")
             }
             catch {
-                self.state = .error("\(error)")
+                self.state = .error
+                self.modalContext.showError("Failed to validate checksums", error)
             }
         }
     }
