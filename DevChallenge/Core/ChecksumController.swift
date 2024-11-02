@@ -36,7 +36,7 @@ actor ChecksumController {
         let path = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<String, Swift.Error>) in
             proxy.generateChecksumsFile(
                 for: files.map { $0.path(percentEncoded: false) },
-                outputDirectoryPath: "/Users/shivatinker",
+                outputDirectoryPath: NSTemporaryDirectory().appending("/").appending(UUID().uuidString),
                 type: type
             ) { path, error in
                 if let error {

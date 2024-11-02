@@ -17,12 +17,12 @@ final class ChecksumViewer: NSObject, NSWindowDelegate {
     
     override private init() {}
     
-    func viewChecksums(_ file: ChecksumFile) {
+    func viewChecksums(_ file: ChecksumFile, filename: String) {
         if let currentWindow {
             currentWindow.close()
         }
         
-        let window = ChecksumViewerWindow(file: file)
+        let window = ChecksumViewerWindow(filename: filename, file: file)
         
         window.delegate = self
         self.currentWindow = window
@@ -39,7 +39,14 @@ final class ChecksumViewer: NSObject, NSWindowDelegate {
 }
 
 private final class ChecksumViewerWindow: NSWindow {
-    init(file: ChecksumFile) {
+    private let filename: String
+    private let file: ChecksumFile
+    private lazy var modalContext = ModalContext(window: self)
+    
+    init(filename: String, file: ChecksumFile) {
+        self.file = file
+        self.filename = filename
+        
         super.init(
             contentRect: .zero,
             styleMask: [.titled, .closable, .resizable],
@@ -51,8 +58,35 @@ private final class ChecksumViewerWindow: NSWindow {
             rootView: ChecksumViewerContent(file: file)
         )
         
+        self.title = filename
+        
         self.isReleasedWhenClosed = false
         self.title = "Checksum Viewer"
+    }
+    
+    @objc
+    func saveDocument(_ sender: Any) {
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = self.filename
+        
+        let result = panel.runModal()
+        
+        guard result == .OK, let url = panel.url else {
+            return
+        }
+        
+        do {
+            let data = self.file.makeData()
+            try data.write(to: url)
+        }
+        catch {
+            self.modalContext.showError("Failed to save checksum file", error)
+        }
+    }
+    
+    @objc
+    func saveDocumentAs(_ sender: Any) {
+        self.saveDocument(sender)
     }
 }
 
@@ -65,7 +99,7 @@ private struct ChecksumViewerContent: View {
         }
         
         Table(rows) {
-            TableColumn("File", value: \.file.lastPathComponent)
+            TableColumn("File", value: \.file.path)
             TableColumn("Checksum", value: \.checksum.hexString)
         }
         .frame(minWidth: 500, minHeight: 400)

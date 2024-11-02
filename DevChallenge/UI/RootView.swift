@@ -144,6 +144,11 @@ struct RootView<Model: RootViewModelProtocol>: View {
                     self.model.loadChecksums()
                 }
                 
+                Button("Save...") {
+                    self.model.saveChecksums()
+                }
+                .disabled(self.model.loadedChecksumFile == nil)
+                
                 Button("View") {
                     self.model.viewChecksums()
                 }
@@ -164,6 +169,11 @@ struct RootView<Model: RootViewModelProtocol>: View {
     @ViewBuilder
     private func makeStatusBar() -> some View {
         HStack {
+            Text("DEV Challenge XXI")
+                .foregroundStyle(.secondary)
+            
+            Spacer()
+            
             switch self.model.state {
             case .ready:
                 Text("Ready")
@@ -192,7 +202,6 @@ struct RootView<Model: RootViewModelProtocol>: View {
                     .foregroundStyle(.red)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .trailing)
         .frame(height: 25)
         .padding(.horizontal, 20)
         .padding(.vertical, 4)
@@ -202,6 +211,8 @@ struct RootView<Model: RootViewModelProtocol>: View {
 private struct DropBox: View {
     let isTargeted: Bool
     let loadedFile: URL?
+    
+    @State var isHovered = false
     
     var body: some View {
         if let loadedFile {
@@ -216,7 +227,7 @@ private struct DropBox: View {
     private var content: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 10)
-                .foregroundStyle(.quinary)
+                .foregroundStyle(self.isHovered ? .quaternary : .quinary)
                 .overlay {
                     if self.isTargeted {
                         RoundedRectangle(cornerRadius: 10)
@@ -233,6 +244,14 @@ private struct DropBox: View {
             else {
                 Text("Drop checksum file here")
                     .foregroundStyle(.secondary)
+            }
+        }
+        .onHover {
+            self.isHovered = $0
+        }
+        .onTapGesture {
+            if let loadedFile {
+                NSWorkspace.shared.activateFileViewerSelecting([loadedFile])
             }
         }
     }

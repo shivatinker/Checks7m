@@ -56,6 +56,7 @@ class DevChallengeXPC: NSObject, DevChallengeXPCProtocol {
                 
                 let data = file.makeData()
                 
+                try FileManager.default.createDirectory(atPath: outputDirectoryPath, withIntermediateDirectories: true)
                 let outputURL = URL(filePath: outputDirectoryPath).appending(path: "checksum.\(type.fileExtension)")
                 try data.write(to: outputURL)
                 completionHandler(outputURL.path, nil)

@@ -35,50 +35,10 @@ protocol RootViewModelProtocol: ObservableObject {
     func loadChecksums(_ url: URL)
     func validateChecksums()
     func viewChecksums()
+    func saveChecksums()
     
     func cancel()
 }
-
-#if DEBUG
-
-final class MockRootViewModel: RootViewModelProtocol {
-    let state: RootViewState = .progress(nil)
-    
-    let isGenerateEnabled = true
-    let isValidateEnabled = true
-    
-    let loadedChecksumFile: URL? = URL(filePath: "checksum.sha256")
-    
-    @Published var checksumType: ChecksumType = .sha256
-    
-    @Published private(set) var files: [URL: FileItem] = [
-        URL(filePath: "/var/tmp/file1.pdf"): FileItem(isDirectory: false),
-        URL(filePath: "/var/tmp/file2.pdf"): FileItem(isDirectory: false),
-        URL(filePath: "/var/tmp/dir1"): FileItem(isDirectory: true),
-        URL(filePath: "/var/tmp/file4.pdf"): FileItem(isDirectory: false),
-        URL(filePath: "/var/tmp/dir2"): FileItem(isDirectory: true),
-    ]
-    
-    func addFiles() {}
-    
-    func addFiles(_ urls: [URL]) {}
-    
-    func removeFiles(_ files: Set<URL>) {}
-    
-    func generateChecksums() {}
-    
-    func loadChecksums() {}
-    
-    func loadChecksums(_ url: URL) {}
-    
-    func validateChecksums() {}
-    
-    func viewChecksums() {}
-    
-    func cancel() {}
-}
-
-#endif
 
 struct FileItem {
     let isDirectory: Bool
@@ -172,10 +132,37 @@ final class RootViewModel: RootViewModelProtocol {
         
         do {
             let checksums = try ChecksumFile(data: try Data(contentsOf: loadedChecksumFile))
-            ChecksumViewer.shared.viewChecksums(checksums)
+            ChecksumViewer.shared.viewChecksums(checksums, filename: loadedChecksumFile.lastPathComponent)
         }
         catch {
             self.modalContext.showError("Failed to load checksums", error)
+        }
+    }
+    
+    func saveChecksums() {
+        guard let loadedChecksumFile else {
+            preconditionFailure()
+        }
+        
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = loadedChecksumFile.lastPathComponent
+        
+        let result = panel.runModal()
+        
+        guard result == .OK, let url = panel.url else {
+            return
+        }
+        
+        do {
+            if url == loadedChecksumFile {
+                return
+            }
+            
+            try? FileManager.default.removeItem(at: url)
+            try FileManager.default.copyItem(at: loadedChecksumFile, to: url)
+        }
+        catch {
+            self.modalContext.showError("Failed to copy checksum file", error)
         }
     }
     
