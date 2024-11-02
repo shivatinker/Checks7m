@@ -10,40 +10,37 @@ import XCTest
 
 final class ChecksumGeneratorTests: XCTestCase {
     private static let tempDirectoryPath = NSTemporaryDirectory().appending("/").appending(UUID().uuidString)
-                                                                                    
-    func testMD5() throws {
-        let fileURL = try self.makeTempFile("Hello, DevChallenge!")
-        let generator = FileChecksumGenerator(checksumType: .md5)
-        let data = try generator.generateChecksum(forFileAt: fileURL)
-        XCTAssertEqual(data.hexString, "c6891175ff2684c3603384bc95a5cbd3")
-    }
     
-    func testSHA256() throws {
-        let fileURL = try self.makeTempFile("Hello, DevChallenge!")
-        let generator = FileChecksumGenerator(checksumType: .sha256)
-        let data = try generator.generateChecksum(forFileAt: fileURL)
-        XCTAssertEqual(data.hexString, "27aec15f06ab185da46ee97a7905fd107df66df0853169932afeceec941ac5ff")
-    }
-    
-    override class func setUp() {
-        try! FileManager.default.createDirectory(atPath: Self.tempDirectoryPath, withIntermediateDirectories: true)
-    }
-    
-    override class func tearDown() {
-        do {
-            try FileManager.default.removeItem(atPath: self.tempDirectoryPath)
-        }
-        catch {
-            print("Error removing temp directory: \(error)")
-        }
-    }
-    
-    private func makeTempFile(_ contents: String) throws -> URL {
-        let url = URL(filePath: Self.tempDirectoryPath).appendingPathComponent(UUID().uuidString)
+    func testRecursiveGeneration() throws {
+        let files = try self.makeFileList()
         
-        let data = contents.data(using: .utf8)!
-        try data.write(to: url)
+        let generator = ChecksumGenerator(checksumType: .md5)
         
-        return url
+        let checksum = try generator.generateChecksums(for: files)
+        let data = checksum.makeData()
+        
+        XCTAssertEqual(String(data: data, encoding: .utf8)!, """
+        952d2c56d0485958336747bcdd98590d  dir1/file1.txt
+        952d2c56d0485958336747bcdd98590d  dir1/file1.txt
+        acbd18db4cc2f85cedef654fccc4a4d8  dir2/file2.txt
+        """)
+    }
+    
+    private func makeFileList() throws -> [URL] {
+        let rootURL = URL(filePath: Self.tempDirectoryPath)
+        
+        let dir1 = rootURL.appending(path: "dir1")
+        try FileManager.default.createDirectory(at: dir1, withIntermediateDirectories: true)
+        
+        let dir2 = rootURL.appending(path: "dir2")
+        try FileManager.default.createDirectory(at: dir2, withIntermediateDirectories: true)
+        
+        let file1 = dir1.appending(path: "file1.txt")
+        FileManager.default.createFile(atPath: file1.path, contents: "Hello!".data(using: .utf8))
+        
+        let file2 = dir2.appending(path: "file2.txt")
+        FileManager.default.createFile(atPath: file2.path, contents: "foo".data(using: .utf8))
+        
+        return [dir1, file1, file2]
     }
 }

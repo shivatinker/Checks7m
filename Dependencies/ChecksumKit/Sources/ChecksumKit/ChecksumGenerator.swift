@@ -16,7 +16,7 @@ public struct ChecksumGenerator {
     
     public func generateChecksums(
         for files: [URL],
-        progressHandler: ((Double) -> Void)?
+        progressHandler: ((Double) -> Void)? = nil
     ) throws -> ChecksumFile {
         let generator = FileChecksumGenerator(checksumType: self.checksumType)
         var result = ChecksumFile()
