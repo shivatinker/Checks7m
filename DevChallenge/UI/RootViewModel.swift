@@ -28,9 +28,11 @@ protocol RootViewModelProtocol: ObservableObject {
     var isValidateEnabled: Bool { get }
     
     func addFiles()
+    func addFiles(_ urls: [URL])
     func removeFiles(_ files: Set<URL>)
     func generateChecksums()
     func loadChecksums()
+    func loadChecksums(_ url: URL)
     func validateChecksums()
     func viewChecksums()
 }
@@ -57,11 +59,15 @@ final class MockRootViewModel: RootViewModelProtocol {
     
     func addFiles() {}
     
+    func addFiles(_ urls: [URL]) {}
+    
     func removeFiles(_ files: Set<URL>) {}
     
     func generateChecksums() {}
     
     func loadChecksums() {}
+    
+    func loadChecksums(_ url: URL) {}
     
     func validateChecksums() {}
     
@@ -134,6 +140,10 @@ final class RootViewModel: RootViewModelProtocol {
             return
         }
         
+        self.loadChecksums(url)
+    }
+    
+    func loadChecksums(_ url: URL) {
         self.checksumsFileURL = url
     }
     
@@ -162,7 +172,11 @@ final class RootViewModel: RootViewModelProtocol {
             return
         }
         
-        self.files.formUnion(panel.urls)
+        self.addFiles(panel.urls)
+    }
+    
+    func addFiles(_ urls: [URL]) {
+        self.files.formUnion(urls)
     }
     
     func validateChecksums() {

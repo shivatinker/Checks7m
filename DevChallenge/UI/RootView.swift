@@ -34,6 +34,13 @@ struct RootView<Model: RootViewModelProtocol>: View {
                         Text(url.lastPathComponent)
                     }
                     .listStyle(.plain)
+                    .dropDestination(
+                        for: URL.self,
+                        action: { urls, location in
+                            self.model.addFiles(urls)
+                            return true
+                        }
+                    )
                     
                     Divider()
                     
@@ -65,6 +72,8 @@ struct RootView<Model: RootViewModelProtocol>: View {
         }
         .frame(height: 400)
     }
+    
+    @State var isTargeted = false
     
     @ViewBuilder
     private func makeControlPanel() -> some View {
@@ -98,8 +107,33 @@ struct RootView<Model: RootViewModelProtocol>: View {
             Text("Validate")
                 .bold()
             
-            Text("Loaded checksum: \(self.model.loadedChecksumFile ?? "<nil>")")
-                .foregroundStyle(.secondary)
+            DropBox(
+                isTargeted: self.isTargeted,
+                loadedFile: self.model.loadedChecksumFile
+            )
+            .dropDestination(
+                for: URL.self,
+                action: { urls, location in
+                    guard let url = urls.first, urls.count == 1 else {
+                        return false
+                    }
+                    
+                    var isDirectory: ObjCBool = false
+                    FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory)
+                    
+                    if isDirectory.boolValue {
+                        return false
+                    }
+                    
+                    self.model.loadChecksums(url)
+                    return true
+                },
+                isTargeted: {
+                    self.isTargeted = $0
+                }
+            )
+            .padding()
+            .frame(height: 130)
             
             HStack {
                 Button("Load...") {
@@ -156,6 +190,35 @@ struct RootView<Model: RootViewModelProtocol>: View {
         .frame(height: 25)
         .padding(.horizontal, 20)
         .padding(.vertical, 4)
+    }
+}
+
+private struct DropBox: View {
+    let isTargeted: Bool
+    let loadedFile: String?
+    
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 10)
+                .foregroundStyle(.quinary)
+                .overlay {
+                    if self.isTargeted {
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(.blue, lineWidth: 3)
+                    }
+                }
+            
+            if let loadedFile {
+                HStack {
+                    Image(systemName: "text.document")
+                    Text(loadedFile)
+                }
+            }
+            else {
+                Text("Drop checksum file here")
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 }
 
