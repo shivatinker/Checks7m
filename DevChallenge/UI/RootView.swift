@@ -50,6 +50,22 @@ struct RootView<Model: RootViewModelProtocol>: View {
                 
                 self.makeControlPanel()
                     .frame(width: 300)
+                
+                Divider()
+                
+                if let checksums = self.model.checksums {
+                    List(
+                        checksums.files.sorted(using: KeyPathComparator(\.key.absoluteString)),
+                        id: \.key
+                    ) { url, checksum in
+                        HStack {
+                            Text(url.lastPathComponent)
+                            
+                            Text(checksum.hexString)
+                        }
+                    }
+                    .frame(width: 300)
+                }
             }
             
             Divider()
@@ -75,10 +91,19 @@ struct RootView<Model: RootViewModelProtocol>: View {
             }
             .pickerStyle(RadioGroupPickerStyle())
             
+            Button("Load checksums") {
+                self.model.loadChecksums()
+            }
+            
             Button("Generate Checksums") {
                 self.model.generateChecksums()
             }
             .disabled(false == self.model.isActionEnabled)
+            
+            Button("Validate Checksums") {
+                self.model.validateChecksums()
+            }
+            .disabled(false == self.model.isActionEnabled || self.model.checksums == nil)
         }
     }
     

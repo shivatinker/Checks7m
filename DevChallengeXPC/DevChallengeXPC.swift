@@ -20,6 +20,12 @@ import Foundation
         type: ChecksumType,
         completionHandler: @escaping (String?, Error?) -> Void
     )
+    
+    func validateChecksums(
+        for files: [String],
+        checksumFileURL: String,
+        completionHandler: @escaping (Error?) -> Void
+    )
 }
 
 /// This object implements the protocol which we have defined. It provides the actual behavior for the service. It is 'exported' by the service to make it available to the process hosting the service over an NSXPCConnection.
@@ -32,14 +38,8 @@ class DevChallengeXPC: NSObject, DevChallengeXPCProtocol {
         type: ChecksumType,
         completionHandler: @escaping (String?, Error?) -> Void
     ) {
-        let listener = self.connection.remoteObjectProxy as! DevChallengeXPCListener
-        
-        let generator = ChecksumGenerator(checksumType: type)
-        
         do {
-            let file = try generator.generateChecksums(for: files.map { URL(filePath: $0) }) { progress in
-                listener.handleProgress(progress)
-            }
+            let file = try self.generateChecksums(for: files, type: type)
             
             let data = file.makeData()
             try data.write(to: URL(filePath: outputURL))
@@ -47,6 +47,42 @@ class DevChallengeXPC: NSObject, DevChallengeXPCProtocol {
         }
         catch {
             completionHandler(nil, error)
+        }
+    }
+    
+    func validateChecksums(
+        for files: [String],
+        checksumFileURL: String,
+        completionHandler: @escaping (Error?) -> Void
+    ) {
+        do {
+            let listener = self.connection.remoteObjectProxy as! DevChallengeXPCListener
+            
+            let validator = ChecksumValidator()
+            try validator.validate(
+                files: files,
+                checksumFilePath: checksumFileURL,
+                progressHandler: {
+                    listener.handleProgress($0)
+                }
+            )
+            
+            completionHandler(nil)
+        }
+        catch {
+            completionHandler(error)
+        }
+    }
+    
+    private func generateChecksums(
+        for files: [String],
+        type: ChecksumType
+    ) throws -> ChecksumFile {
+        let generator = ChecksumGenerator(checksumType: type)
+        let listener = self.connection.remoteObjectProxy as! DevChallengeXPCListener
+        
+        return try generator.generateChecksums(for: files.map { URL(filePath: $0) }) { progress in
+            listener.handleProgress(progress)
         }
     }
 }

@@ -20,12 +20,15 @@ enum RootViewState {
 protocol RootViewModelProtocol: ObservableObject {
     var state: RootViewState { get }
     var files: Set<URL> { get }
+    var checksums: ChecksumFile? { get }
     var isActionEnabled: Bool { get }
     var checksumType: ChecksumType { get set }
     
     func addFiles()
     func removeFiles(_ files: Set<URL>)
     func generateChecksums()
+    func loadChecksums()
+    func validateChecksums()
 }
 
 #if DEBUG
@@ -33,6 +36,16 @@ protocol RootViewModelProtocol: ObservableObject {
 final class MockRootViewModel: RootViewModelProtocol {
     let state: RootViewState = .progress(nil)
     let isActionEnabled = true
+    
+    let checksums: ChecksumFile? = ChecksumFile(
+        files: [
+            URL(filePath: "/var/tmp/file1.pdf"): Data(hexString: "abcd1234abcd1234")!,
+            URL(filePath: "/var/tmp/file2.pdf"): Data(hexString: "abcd1234abcd1234")!,
+            URL(filePath: "/var/tmp/file3.pdf"): Data(hexString: "abcd1234abcd1234")!,
+            URL(filePath: "/var/tmp/file4.pdf"): Data(hexString: "abcd1234abcd1234")!,
+            URL(filePath: "/var/tmp/file5.pdf"): Data(hexString: "abcd1234abcd1234")!,
+        ]
+    )
     
     @Published var checksumType: ChecksumType = .sha256
     
@@ -49,6 +62,10 @@ final class MockRootViewModel: RootViewModelProtocol {
     func removeFiles(_ files: Set<URL>) {}
     
     func generateChecksums() {}
+    
+    func loadChecksums() {}
+    
+    func validateChecksums() {}
 }
 
 #endif
@@ -60,6 +77,9 @@ final class RootViewModel: RootViewModelProtocol {
     @Published private(set) var files: Set<URL> = []
     
     @Published var checksumType: ChecksumType = .sha256
+    
+    @Published private(set) var checksumsFileURL: URL?
+    @Published private(set) var checksums: ChecksumFile?
     
     var isActionEnabled: Bool {
         if case .progress = self.state {
@@ -87,11 +107,34 @@ final class RootViewModel: RootViewModelProtocol {
                 
                 self.state = .done("Done")
                 
-                NSWorkspace.shared.open(url)
+//                NSWorkspace.shared.open(url)
+                
+                self.checksums = try ChecksumFile(data: try Data(contentsOf: url))
+                self.checksumsFileURL = url
             }
             catch {
                 self.state = .error("\(error)")
             }
+        }
+    }
+    
+    func loadChecksums() {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        
+        let response = panel.runModal()
+        
+        guard response == .OK, let url = panel.url else {
+            return
+        }
+        
+        do {
+            self.checksums = try ChecksumFile(data: try Data(contentsOf: url))
+            self.checksumsFileURL = url
+        }
+        catch {
+            print("Failed to load checksums: \(error)")
         }
     }
     
@@ -107,6 +150,36 @@ final class RootViewModel: RootViewModelProtocol {
         }
         
         self.files.formUnion(panel.urls)
+    }
+    
+    func validateChecksums() {
+        guard let checksumsFileURL else {
+            preconditionFailure()
+        }
+        
+        Task { @MainActor in
+            do {
+                self.state = .progress(nil)
+                
+                let result = await self.controller.validateChecksums(
+                    for: Array(self.files),
+                    checksumFileURL: checksumsFileURL,
+                    progressHandler: { progress in
+                        Task { @MainActor in
+                            if case .progress = self.state {
+                                self.state = .progress(progress)
+                            }
+                        }
+                    }
+                )
+                
+                try result.get()
+                self.state = .done("Checksum validated")
+            }
+            catch {
+                self.state = .error("\(error)")
+            }
+        }
     }
     
     func removeFiles(_ files: Set<URL>) {

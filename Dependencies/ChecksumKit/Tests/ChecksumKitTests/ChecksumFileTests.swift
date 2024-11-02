@@ -33,4 +33,19 @@ final class ChecksumFileTests: XCTestCase {
         
         let _ = try ChecksumFile(data: data)
     }
+    
+    func testDecodingWithSpaces() throws {
+        let data = """
+        deadbeef  /file 2.pdf
+        ab13cd43  /var/tmp with spaces/file1.pdf
+        
+        """.data(using: .utf8)!
+        
+        let file = try ChecksumFile(data: data)
+        
+        XCTAssertEqual(file.files, [
+            URL(filePath: "/var/tmp with spaces/file1.pdf"): Data(hexString: "ab13cd43")!,
+            URL(filePath: "/file 2.pdf"): Data(hexString: "deadbeef")!,
+        ])
+    }
 }

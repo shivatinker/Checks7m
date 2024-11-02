@@ -14,7 +14,7 @@ public struct ChecksumFile {
         case invalidChecksum
     }
     
-    private var files: [URL: Data] = [:]
+    public private(set) var files: [URL: Data] = [:]
     
     public init(files: [URL: Data] = [:]) {
         self.files = files
@@ -28,17 +28,17 @@ public struct ChecksumFile {
         let items = string.split(separator: /\n+/)
         
         for item in items {
-            let parts = item.split(separator: /\s+/)
+            let match = item.wholeMatch(of: /([0-9a-fA-F]+)\s\s(.+)/)
             
-            guard parts.count == 2 else {
+            guard let match else {
                 throw Error.invalidRow
             }
             
-            guard let checksum = Data(hexString: String(parts[0])) else {
+            guard let checksum = Data(hexString: String(match.output.1)) else {
                 throw Error.invalidChecksum
             }
             
-            let url = URL(fileURLWithPath: String(parts[1]))
+            let url = URL(fileURLWithPath: String(match.output.2))
             
             self.files[url] = checksum
         }
