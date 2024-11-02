@@ -14,7 +14,7 @@ public struct ChecksumFile {
         case invalidChecksum
     }
     
-    public var files: [URL: Data] = [:]
+    private var files: [URL: Data] = [:]
     
     public init(files: [URL: Data] = [:]) {
         self.files = files
@@ -52,5 +52,9 @@ public struct ChecksumFile {
         }
         
         return string.data(using: .utf8)!
+    }
+    
+    public mutating func add(file: URL, checksum: Data) {
+        self.files[file] = checksum
     }
 }

@@ -27,7 +27,7 @@ enum RootViewState {
 protocol RootViewModelProtocol: ObservableObject {
     var state: RootViewState { get }
     
-    func processFile(at url: URL)
+    func processFiles(_ urls: [URL])
 }
 
 final class RootViewModel: RootViewModelProtocol {
@@ -35,15 +35,15 @@ final class RootViewModel: RootViewModelProtocol {
     
     @Published private(set) var state: RootViewState = .ready
     
-    func processFile(at url: URL) {
+    func processFiles(_ urls: [URL]) {
         precondition(false == self.state.isStartDisabled)
         
         Task { @MainActor in
             do {
                 self.state = .progress(nil)
                 
-                let data = try await self.controller.generateChecksum(
-                    forFileAt: url,
+                try await self.controller.generateChecksum(
+                    for: urls,
                     type: .sha256
                 ) { progress in
                     Task { @MainActor in
@@ -51,8 +51,7 @@ final class RootViewModel: RootViewModelProtocol {
                     }
                 }
                 
-                let hexDigest = data.map { String(format: "%02hhx", $0) }.joined()
-                self.state = .done(hexDigest)
+                self.state = .done("Done")
             }
             catch {
                 self.state = .error("\(error)")

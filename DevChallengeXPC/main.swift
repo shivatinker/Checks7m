@@ -18,7 +18,9 @@ class ServiceDelegate: NSObject, NSXPCListenerDelegate {
         let exportedObject = DevChallengeXPC()
         exportedObject.connection = newConnection
         newConnection.exportedObject = exportedObject
-        newConnection.remoteObjectInterface = NSXPCInterface(with: DevChallengeXPCListener.self)
+        
+        let interface = NSXPCInterface(with: DevChallengeXPCListener.self)
+        newConnection.remoteObjectInterface = interface
         
         // Resuming the connection allows the system to deliver more incoming messages.
         newConnection.resume()

@@ -21,10 +21,10 @@ actor ChecksumController {
     init() {}
     
     func generateChecksum(
-        forFileAt url: URL,
+        for files: [URL],
         type: ChecksumType,
         progressHandler: @escaping @Sendable (Double) -> Void
-    ) async throws -> Data {
+    ) async throws {
         let connectionToService = NSXPCConnection(serviceName: "com.shivatinker.DevChallengeXPC")
         connectionToService.remoteObjectInterface = NSXPCInterface(with: DevChallengeXPCProtocol.self)
         connectionToService.exportedInterface = NSXPCInterface(with: DevChallengeXPCListener.self)
@@ -39,23 +39,20 @@ actor ChecksumController {
             throw Error("Failed to get remote object proxy")
         }
         
-        let data = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Data, Swift.Error>) in
-            proxy.processFile(at: url, type: type) { data, error in
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Swift.Error>) in
+            proxy.generateChecksumsFile(
+                for: files.map { $0.path(percentEncoded: false) },
+                outputURL: "/Users/shivatinker/stuff.sha256",
+                type: .sha256
+            ) { error in
                 if let error {
                     continuation.resume(throwing: error)
                     return
                 }
                 
-                guard let data else {
-                    continuation.resume(throwing: Error("Expected data to be present"))
-                    return
-                }
-                
-                continuation.resume(returning: data)
+                continuation.resume()
             }
         }
-        
-        return data
     }
 }
 

@@ -5,8 +5,8 @@
 //  Created by Andrii Zinoviev on 01.11.2024.
 //
 
-import Foundation
 import ChecksumKit
+import Foundation
 
 @objc public protocol DevChallengeXPCListener {
     func handleProgress(_ progress: Double)
@@ -14,10 +14,11 @@ import ChecksumKit
 
 /// The protocol that this service will vend as its API. This protocol will also need to be visible to the process hosting the service.
 @objc public protocol DevChallengeXPCProtocol {
-    func processFile(
-        at url: URL,
+    func generateChecksumsFile(
+        for files: [String],
+        outputURL: String,
         type: ChecksumType,
-        completionHandler: @escaping (Data?, Error?) -> Void
+        completionHandler: @escaping (Error?) -> Void
     )
 }
 
@@ -25,27 +26,22 @@ import ChecksumKit
 class DevChallengeXPC: NSObject, DevChallengeXPCProtocol {
     unowned var connection: NSXPCConnection!
     
-    func processFile(
-        at url: URL,
+    func generateChecksumsFile(
+        for files: [String],
+        outputURL: String,
         type: ChecksumType,
-        completionHandler: @escaping (Data?, Error?) -> Void
+        completionHandler: @escaping ((any Error)?) -> Void
     ) {
-        let listener = self.connection.remoteObjectProxy as! DevChallengeXPCListener
+        let generator = ChecksumGenerator(checksumType: type)
         
         do {
-            let generator = ChecksumGenerator(checksumType: type)
-            
-            let checksum = try generator.generateChecksum(
-                forFileAt: url,
-                progressHandler: {
-                    listener.handleProgress($0)
-                }
-            )
-            
-            completionHandler(checksum, nil)
+            let file = try generator.generateChecksums(for: files.map { URL(filePath: $0) })
+            let data = file.makeData()
+            try data.write(to: URL(filePath: outputURL))
+            completionHandler(nil)
         }
         catch {
-            completionHandler(nil, error)
+            completionHandler(error)
         }
     }
 }

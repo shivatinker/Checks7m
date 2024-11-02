@@ -1,31 +1,11 @@
 //
 //  ChecksumGenerator.swift
-//  DevChallenge
+//  ChecksumKit
 //
 //  Created by Andrii Zinoviev on 02.11.2024.
 //
 
-import CommonCrypto
 import Foundation
-
-protocol ChecksumContext {
-    init()
-    mutating func update(data: Data)
-    mutating func finalize() -> Data
-}
-
-@objc
-public enum ChecksumType: Int {
-    case md5 = 0
-    case sha256
-    
-    var contextType: ChecksumContext.Type {
-        switch self {
-        case .md5: return MD5ChecksumContext.self
-        case .sha256: return SHA256ChecksumContext.self
-        }
-    }
-}
 
 public struct ChecksumGenerator {
     public let checksumType: ChecksumType
@@ -34,54 +14,32 @@ public struct ChecksumGenerator {
         self.checksumType = checksumType
     }
     
-    public func generateChecksum(
-        forFileAt url: URL,
-        progressHandler: ((Double) -> Void)? = nil
-    ) throws -> Data {
-        let bufferSize = 1024 * 1024
+    public func generateChecksums(for files: [URL]) throws -> ChecksumFile {
+        let generator = FileChecksumGenerator(checksumType: self.checksumType)
+        var result = ChecksumFile()
         
-        let file = try FileHandle(forReadingFrom: url)
-        
-        let fileSize = try FileManager.default.attributesOfItem(atPath: url.path(percentEncoded: false))[.size] as! UInt64
-        
-        let totalIterationCount = Int(fileSize) / bufferSize + 1
-        var iteration = 0
-        
-        defer {
-            do {
-                try file.close()
-            }
-            catch {
-                print("Error closing file: \(error)")
-            }
+        try self.processFiles(at: files) { url in
+            let checksum = try generator.generateChecksum(forFileAt: url)
+            result.add(file: url, checksum: checksum)
         }
         
-        var context = self.checksumType.contextType.init()
-        
-        progressHandler?(0.0)
-        
-        while true {
-            let shouldBreak = autoreleasepool {
-                let data = file.readData(ofLength: bufferSize)
+        return result
+    }
+    
+    private func processFiles(at urls: [URL], fileHandler: (URL) throws -> Void) rethrows {
+        let fileManager = FileManager.default
 
-                if data.isEmpty {
-                    return true
+        for url in urls {
+            // Use a file enumerator to recursively traverse directories
+            if let enumerator = fileManager.enumerator(at: url, includingPropertiesForKeys: nil) {
+                for case let fileURL as URL in enumerator {
+                    var isDirectory: ObjCBool = false
+                    if fileManager.fileExists(atPath: fileURL.path, isDirectory: &isDirectory), !isDirectory.boolValue {
+                        // Call the fileHandler for each file
+                        try fileHandler(fileURL)
+                    }
                 }
-                
-                context.update(data: data)
-                return false
             }
-            
-            if shouldBreak {
-                break
-            }
-            
-            iteration += 1
-            progressHandler?(Double(iteration) / Double(totalIterationCount))
         }
-        
-        progressHandler?(1.0)
-        
-        return context.finalize()
     }
 }

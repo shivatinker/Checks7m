@@ -39,15 +39,16 @@ struct RootView<Model: RootViewModelProtocol>: View {
             
             Button("Open") {
                 let panel = NSOpenPanel()
-                panel.allowsMultipleSelection = false
+                panel.allowsMultipleSelection = true
+                panel.canChooseDirectories = true
                 
                 let response = panel.runModal()
                 
-                guard response == .OK, let url = panel.url else {
+                guard response == .OK, false == panel.urls.isEmpty else {
                     return
                 }
                 
-                self.model.processFile(at: url)
+                self.model.processFiles(panel.urls)
             }
             .disabled(self.model.state.isStartDisabled)
         }
@@ -64,7 +65,7 @@ struct RootView<Model: RootViewModelProtocol>: View {
 
 final class MockRootViewModel: RootViewModelProtocol {
     let state: RootViewState = .progress(nil)
-    func processFile(at url: URL) {}
+    func processFiles(_ urls: [URL]) {}
 }
 
 #endif
