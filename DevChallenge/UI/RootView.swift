@@ -179,6 +179,8 @@ struct RootView<Model: RootViewModelProtocol>: View {
                         ProgressView()
                             .progressViewStyle(LinearProgressViewStyle())
                     }
+                    
+                    Button("Cancel", action: self.model.cancel)
                 }
                 .frame(width: 250)
                 

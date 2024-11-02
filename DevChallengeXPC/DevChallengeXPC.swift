@@ -26,11 +26,23 @@ import Foundation
         checksumFilePath: String,
         completionHandler: @escaping (Error?) -> Void
     )
+    
+    func cancelAllTasks()
 }
 
 /// This object implements the protocol which we have defined. It provides the actual behavior for the service. It is 'exported' by the service to make it available to the process hosting the service over an NSXPCConnection.
 class DevChallengeXPC: NSObject, DevChallengeXPCProtocol {
+    private var tasks: Set<Task<Void, Never>> = []
+    
     unowned var connection: NSXPCConnection!
+    
+    func cancelAllTasks() {
+        for task in self.tasks {
+            task.cancel()
+        }
+        
+        self.tasks.removeAll()
+    }
     
     func generateChecksumsFile(
         for files: [String],
@@ -38,18 +50,22 @@ class DevChallengeXPC: NSObject, DevChallengeXPCProtocol {
         type: ChecksumType,
         completionHandler: @escaping (String?, Error?) -> Void
     ) {
-        do {
-            let file = try self.generateChecksums(for: files, type: type)
-            
-            let data = file.makeData()
-            
-            let outputURL = URL(filePath: outputDirectoryPath).appending(path: "checksum.\(type.fileExtension)")
-            try data.write(to: outputURL)
-            completionHandler(outputURL.path, nil)
+        let task = Task {
+            do {
+                let file = try self.generateChecksums(for: files, type: type)
+                
+                let data = file.makeData()
+                
+                let outputURL = URL(filePath: outputDirectoryPath).appending(path: "checksum.\(type.fileExtension)")
+                try data.write(to: outputURL)
+                completionHandler(outputURL.path, nil)
+            }
+            catch {
+                completionHandler(nil, error)
+            }
         }
-        catch {
-            completionHandler(nil, error)
-        }
+        
+        self.tasks.insert(task)
     }
     
     func validateChecksums(
@@ -57,23 +73,27 @@ class DevChallengeXPC: NSObject, DevChallengeXPCProtocol {
         checksumFilePath: String,
         completionHandler: @escaping (Error?) -> Void
     ) {
-        do {
-            let listener = self.connection.remoteObjectProxy as! DevChallengeXPCListener
-            
-            let validator = ChecksumValidator()
-            try validator.validate(
-                files: files,
-                checksumFilePath: checksumFilePath,
-                progressHandler: {
-                    listener.handleProgress($0)
-                }
-            )
-            
-            completionHandler(nil)
+        let task = Task {
+            do {
+                let listener = self.connection.remoteObjectProxy as! DevChallengeXPCListener
+                
+                let validator = ChecksumValidator()
+                try validator.validate(
+                    files: files,
+                    checksumFilePath: checksumFilePath,
+                    progressHandler: {
+                        listener.handleProgress($0)
+                    }
+                )
+                
+                completionHandler(nil)
+            }
+            catch {
+                completionHandler(error)
+            }
         }
-        catch {
-            completionHandler(error)
-        }
+        
+        self.tasks.insert(task)
     }
     
     private func generateChecksums(

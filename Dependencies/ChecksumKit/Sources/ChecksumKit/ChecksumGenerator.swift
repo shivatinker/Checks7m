@@ -35,6 +35,8 @@ public struct ChecksumGenerator {
                 progressHandler?(Double(completedUnitCount) / totalUnitCount)
             }
             
+            try Task.checkCancellation()
+            
             if result.hasChecksum(for: url) {
                 print("Skipping file \(url) because it has already been processed.")
                 return

@@ -35,6 +35,8 @@ protocol RootViewModelProtocol: ObservableObject {
     func loadChecksums(_ url: URL)
     func validateChecksums()
     func viewChecksums()
+    
+    func cancel()
 }
 
 #if DEBUG
@@ -72,6 +74,8 @@ final class MockRootViewModel: RootViewModelProtocol {
     func validateChecksums() {}
     
     func viewChecksums() {}
+    
+    func cancel() {}
 }
 
 #endif
@@ -118,7 +122,9 @@ final class RootViewModel: RootViewModelProtocol {
                 let url = try await self.controller.generateChecksum(
                     for: Array(self.files.keys),
                     type: self.checksumType
-                ) { progress in
+                ) { [weak self] progress in
+                    guard let self else { return }
+                    
                     Task { @MainActor in
                         self.state = .progress(progress)
                     }
@@ -130,8 +136,13 @@ final class RootViewModel: RootViewModelProtocol {
                 self.viewChecksums()
             }
             catch {
-                self.modalContext.showError("Failed to generate checksums", error)
-                self.state = .error
+                if false == self.isCancellationError(error) {
+                    self.modalContext.showError("Failed to generate checksums", error)
+                    self.state = .error
+                }
+                else {
+                    self.state = .ready
+                }
             }
         }
     }
@@ -164,7 +175,7 @@ final class RootViewModel: RootViewModelProtocol {
             ChecksumViewer.shared.viewChecksums(checksums)
         }
         catch {
-            print("Failed to load checksums: \(error)")
+            self.modalContext.showError("Failed to load checksums", error)
         }
     }
     
@@ -204,7 +215,9 @@ final class RootViewModel: RootViewModelProtocol {
                 let result = await self.controller.validateChecksums(
                     for: Array(self.files.keys),
                     checksumFileURL: loadedChecksumFile,
-                    progressHandler: { progress in
+                    progressHandler: { [weak self] progress in
+                        guard let self else { return }
+                        
                         Task { @MainActor in
                             if case .progress = self.state {
                                 self.state = .progress(progress)
@@ -218,8 +231,13 @@ final class RootViewModel: RootViewModelProtocol {
                 self.modalContext.showMessage("Success", "Checksum matches")
             }
             catch {
-                self.state = .error
-                self.modalContext.showError("Failed to validate checksums", error)
+                if false == self.isCancellationError(error) {
+                    self.state = .error
+                    self.modalContext.showError("Failed to validate checksums", error)
+                }
+                else {
+                    self.state = .ready
+                }
             }
         }
     }
@@ -228,5 +246,23 @@ final class RootViewModel: RootViewModelProtocol {
         for file in files {
             self.files[file] = nil
         }
+    }
+    
+    func cancel() {
+        Task {
+            await self.controller.cancelAllTasks()
+        }
+    }
+    
+    private func isCancellationError(_ error: Error) -> Bool {
+        if error is CancellationError {
+            return true
+        }
+        
+        if (error as NSError).domain == "Swift.CancellationError" {
+            return true
+        }
+        
+        return false
     }
 }

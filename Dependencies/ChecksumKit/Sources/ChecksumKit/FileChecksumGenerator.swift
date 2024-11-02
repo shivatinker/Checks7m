@@ -68,6 +68,8 @@ public struct FileChecksumGenerator {
         progressHandler?(0.0)
         
         while true {
+            try Task.checkCancellation()
+            
             let shouldBreak = autoreleasepool {
                 let data = file.readData(ofLength: bufferSize)
 

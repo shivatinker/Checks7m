@@ -18,6 +18,8 @@ actor ChecksumController {
         }
     }
     
+    private var connection: DevChallengeXPCProtocol?
+    
     init() {}
     
     func generateChecksum(
@@ -25,6 +27,10 @@ actor ChecksumController {
         type: ChecksumType,
         progressHandler: @escaping @Sendable (Double) -> Void
     ) async throws -> URL {
+        defer {
+            self.connection = nil
+        }
+        
         let proxy = try self.makeConnection(progressHandler: progressHandler)
         
         let path = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<String, Swift.Error>) in
@@ -55,6 +61,10 @@ actor ChecksumController {
         checksumFileURL: URL,
         progressHandler: @escaping @Sendable (Double) -> Void
     ) async -> Result<Void, Swift.Error> {
+        defer {
+            self.connection = nil
+        }
+        
         do {
             let proxy = try self.makeConnection(progressHandler: progressHandler)
             
@@ -82,6 +92,8 @@ actor ChecksumController {
     private func makeConnection(
         progressHandler: @escaping @Sendable (Double) -> Void
     ) throws -> DevChallengeXPCProtocol {
+        precondition(self.connection == nil)
+        
         let connectionToService = NSXPCConnection(serviceName: "com.shivatinker.DevChallengeXPC")
         connectionToService.remoteObjectInterface = NSXPCInterface(with: DevChallengeXPCProtocol.self)
         connectionToService.exportedInterface = NSXPCInterface(with: DevChallengeXPCListener.self)
@@ -96,7 +108,13 @@ actor ChecksumController {
             throw Error("Failed to get remote object proxy")
         }
         
+        self.connection = proxy
+        
         return proxy
+    }
+    
+    func cancelAllTasks() {
+        self.connection?.cancelAllTasks()
     }
 }
 
