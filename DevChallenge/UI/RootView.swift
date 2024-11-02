@@ -54,15 +54,13 @@ struct RootView<Model: RootViewModelProtocol>: View {
                 Divider()
                 
                 if let checksums = self.model.checksums {
-                    List(
-                        checksums.files.sorted(using: KeyPathComparator(\.key.absoluteString)),
-                        id: \.key
-                    ) { url, checksum in
-                        HStack {
-                            Text(url.lastPathComponent)
-                            
-                            Text(checksum.hexString)
-                        }
+                    let rows = checksums.files.sorted(using: KeyPathComparator(\.key.absoluteString)).map {
+                        TableRow(file: $0.key, checksum: $0.value)
+                    }
+                    
+                    Table(rows) {
+                        TableColumn("File", value: \.file.lastPathComponent)
+                        TableColumn("Checksum", value: \.checksum.hexString)
                     }
                     .frame(width: 300)
                 }
@@ -73,6 +71,15 @@ struct RootView<Model: RootViewModelProtocol>: View {
             self.makeStatusBar()
         }
         .frame(height: 400)
+    }
+    
+    private struct TableRow: Identifiable {
+        var id: URL {
+            self.file
+        }
+        
+        let file: URL
+        let checksum: Data
     }
     
     @ViewBuilder
