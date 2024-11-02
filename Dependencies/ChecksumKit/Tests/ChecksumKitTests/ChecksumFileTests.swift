@@ -11,8 +11,8 @@ import XCTest
 final class ChecksumFileTests: XCTestCase {
     func testEncoding() throws {
         let file = ChecksumFile(files: [
-            URL(filePath: "/var/tmp/file1.pdf"): Data(hexString: "ab13cd43")!,
-            URL(filePath: "/file2.pdf"): Data(hexString: "deadbeef")!,
+            "/var/tmp/file1.pdf": Data(hexString: "ab13cd43")!,
+            "/file2.pdf": Data(hexString: "deadbeef")!,
         ])
         
         let data = file.makeData()
@@ -44,8 +44,8 @@ final class ChecksumFileTests: XCTestCase {
         let file = try ChecksumFile(data: data)
         
         XCTAssertEqual(file.files, [
-            URL(filePath: "/var/tmp with spaces/file1.pdf"): Data(hexString: "ab13cd43")!,
-            URL(filePath: "/file 2.pdf"): Data(hexString: "deadbeef")!,
+            "/var/tmp with spaces/file1.pdf": Data(hexString: "ab13cd43")!,
+            "/file 2.pdf": Data(hexString: "deadbeef")!,
         ])
     }
 }

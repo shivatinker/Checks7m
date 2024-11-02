@@ -8,6 +8,11 @@
 import Foundation
 
 public struct ChecksumGenerator {
+    enum Error: Swift.Error {
+        case failedToGenerateClosestPath
+        case failedToGenerateRelativePath
+    }
+    
     public let checksumType: ChecksumType
     
     public init(checksumType: ChecksumType) {
@@ -29,16 +34,26 @@ public struct ChecksumGenerator {
         
         var completedUnitCount = 0
         
+        guard let rootPath = URL.closestCommonPath(for: files) else {
+            throw Error.failedToGenerateClosestPath
+        }
+        
+        let rootURL = URL(filePath: rootPath)
+
         try self.processFiles(at: files) { url in
             defer {
                 completedUnitCount += 1
                 progressHandler?(Double(completedUnitCount) / totalUnitCount)
             }
             
+            guard let relativePath = rootURL.relativePath(to: url) else {
+                throw Error.failedToGenerateRelativePath
+            }
+            
             try Task.checkCancellation()
             
-            if result.hasChecksum(for: url) {
-                print("Skipping file \(url) because it has already been processed.")
+            if result.hasChecksum(for: relativePath) {
+                print("Skipping file \(relativePath) because it has already been processed.")
                 return
             }
             
@@ -46,7 +61,7 @@ public struct ChecksumGenerator {
                 progressHandler?((Double(completedUnitCount) + progress) / totalUnitCount)
             }
             
-            result.add(file: url, checksum: checksum)
+            result.add(file: relativePath, checksum: checksum)
         }
         
         return result

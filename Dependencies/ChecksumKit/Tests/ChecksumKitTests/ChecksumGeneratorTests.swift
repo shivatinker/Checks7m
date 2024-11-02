@@ -21,8 +21,8 @@ final class ChecksumGeneratorTests: XCTestCase {
         
         XCTAssertEqual(String(data: data, encoding: .utf8)!, """
         952d2c56d0485958336747bcdd98590d  dir1/file1.txt
-        952d2c56d0485958336747bcdd98590d  dir1/file1.txt
         acbd18db4cc2f85cedef654fccc4a4d8  dir2/file2.txt
+        
         """)
     }
     

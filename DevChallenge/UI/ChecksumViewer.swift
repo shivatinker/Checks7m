@@ -94,23 +94,23 @@ private struct ChecksumViewerContent: View {
     let file: ChecksumFile
     
     var body: some View {
-        let rows = self.file.files.sorted(using: KeyPathComparator(\.key.absoluteString)).map {
+        let rows = self.file.files.sorted(using: KeyPathComparator(\.key)).map {
             TableRow(file: $0.key, checksum: $0.value)
         }
         
         Table(rows) {
-            TableColumn("File", value: \.file.path)
+            TableColumn("File", value: \.file)
             TableColumn("Checksum", value: \.checksum.hexString)
         }
         .frame(minWidth: 500, minHeight: 400)
     }
     
     private struct TableRow: Identifiable {
-        var id: URL {
+        var id: String {
             self.file
         }
         
-        let file: URL
+        let file: String
         let checksum: Data
     }
 }

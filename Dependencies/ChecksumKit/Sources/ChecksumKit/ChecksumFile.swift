@@ -14,9 +14,9 @@ public struct ChecksumFile {
         case invalidChecksum
     }
     
-    public private(set) var files: [URL: Data] = [:]
+    public private(set) var files: [String: Data] = [:]
     
-    public init(files: [URL: Data] = [:]) {
+    public init(files: [String: Data] = [:]) {
         self.files = files
     }
     
@@ -38,27 +38,25 @@ public struct ChecksumFile {
                 throw Error.invalidChecksum
             }
             
-            let url = URL(fileURLWithPath: String(match.output.2))
-            
-            self.files[url] = checksum
+            self.files[String(match.output.2)] = checksum
         }
     }
     
     public func makeData() -> Data {
         var string = ""
             
-        for (url, checksum) in self.files.sorted(using: KeyPathComparator(\.key.absoluteString)) {
-            string += "\(checksum.hexString)  \(url.path(percentEncoded: false))\n"
+        for (path, checksum) in self.files.sorted(using: KeyPathComparator(\.key)) {
+            string += "\(checksum.hexString)  \(path)\n"
         }
         
         return string.data(using: .utf8)!
     }
     
-    public mutating func add(file: URL, checksum: Data) {
+    public mutating func add(file: String, checksum: Data) {
         self.files[file] = checksum
     }
     
-    public func hasChecksum(for file: URL) -> Bool {
-        self.files.keys.contains(file)
+    public func hasChecksum(for path: String) -> Bool {
+        self.files.keys.contains(path)
     }
 }
