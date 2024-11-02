@@ -20,6 +20,12 @@ struct RootView<Model: RootViewModelProtocol>: View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
                 VStack(spacing: 0) {
+                    Text("Input files")
+                        .bold()
+                        .padding(4)
+                    
+                    Divider()
+                    
                     List(
                         self.model.files.sorted(using: KeyPathComparator(\.absoluteString)),
                         id: \.self,
@@ -27,6 +33,7 @@ struct RootView<Model: RootViewModelProtocol>: View {
                     ) { url in
                         Text(url.lastPathComponent)
                     }
+                    .listStyle(.plain)
                     
                     Divider()
                     
@@ -50,20 +57,6 @@ struct RootView<Model: RootViewModelProtocol>: View {
                 
                 self.makeControlPanel()
                     .frame(width: 300)
-                
-                Divider()
-                
-                if let checksums = self.model.checksums {
-                    let rows = checksums.files.sorted(using: KeyPathComparator(\.key.absoluteString)).map {
-                        TableRow(file: $0.key, checksum: $0.value)
-                    }
-                    
-                    Table(rows) {
-                        TableColumn("File", value: \.file.lastPathComponent)
-                        TableColumn("Checksum", value: \.checksum.hexString)
-                    }
-                    .frame(width: 300)
-                }
             }
             
             Divider()
@@ -73,18 +66,14 @@ struct RootView<Model: RootViewModelProtocol>: View {
         .frame(height: 400)
     }
     
-    private struct TableRow: Identifiable {
-        var id: URL {
-            self.file
-        }
-        
-        let file: URL
-        let checksum: Data
-    }
-    
     @ViewBuilder
     private func makeControlPanel() -> some View {
         VStack {
+            Divider()
+            
+            Text("Generate")
+                .bold()
+            
             Picker("Checksum Type", selection: self.$model.checksumType) {
                 ForEach(ChecksumType.allCases, id: \.self) { type in
                     switch type {
@@ -97,20 +86,40 @@ struct RootView<Model: RootViewModelProtocol>: View {
                 }
             }
             .pickerStyle(RadioGroupPickerStyle())
-            
-            Button("Load checksums") {
-                self.model.loadChecksums()
-            }
+            .disabled(false == self.model.isGenerateEnabled)
             
             Button("Generate Checksums") {
                 self.model.generateChecksums()
             }
-            .disabled(false == self.model.isActionEnabled)
+            .disabled(false == self.model.isGenerateEnabled)
+            
+            Divider()
+            
+            Text("Validate")
+                .bold()
+            
+            Text("Loaded checksum: \(self.model.loadedChecksumFile ?? "<nil>")")
+                .foregroundStyle(.secondary)
+            
+            HStack {
+                Button("Load...") {
+                    self.model.loadChecksums()
+                }
+                
+                Button("View") {
+                    self.model.viewChecksums()
+                }
+                .disabled(self.model.loadedChecksumFile == nil)
+            }
             
             Button("Validate Checksums") {
                 self.model.validateChecksums()
             }
-            .disabled(false == self.model.isActionEnabled || self.model.checksums == nil)
+            .disabled(false == self.model.isValidateEnabled)
+            
+            Divider()
+            
+            Spacer()
         }
     }
     

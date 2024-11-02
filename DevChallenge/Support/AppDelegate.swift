@@ -24,6 +24,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         
         window.isReleasedWhenClosed = false
+        window.title = "Checks8m"
         
         DispatchQueue.main.async {
             window.makeKeyAndOrderFront(nil)

@@ -20,32 +20,30 @@ enum RootViewState {
 protocol RootViewModelProtocol: ObservableObject {
     var state: RootViewState { get }
     var files: Set<URL> { get }
-    var checksums: ChecksumFile? { get }
-    var isActionEnabled: Bool { get }
     var checksumType: ChecksumType { get set }
+    
+    var loadedChecksumFile: String? { get }
+    
+    var isGenerateEnabled: Bool { get }
+    var isValidateEnabled: Bool { get }
     
     func addFiles()
     func removeFiles(_ files: Set<URL>)
     func generateChecksums()
     func loadChecksums()
     func validateChecksums()
+    func viewChecksums()
 }
 
 #if DEBUG
 
 final class MockRootViewModel: RootViewModelProtocol {
     let state: RootViewState = .progress(nil)
-    let isActionEnabled = true
     
-    let checksums: ChecksumFile? = ChecksumFile(
-        files: [
-            URL(filePath: "/var/tmp/file1.pdf"): Data(hexString: "abcd1234abcd1234")!,
-            URL(filePath: "/var/tmp/file2.pdf"): Data(hexString: "abcd1234abcd1234")!,
-            URL(filePath: "/var/tmp/file3.pdf"): Data(hexString: "abcd1234abcd1234")!,
-            URL(filePath: "/var/tmp/file4.pdf"): Data(hexString: "abcd1234abcd1234")!,
-            URL(filePath: "/var/tmp/file5.pdf"): Data(hexString: "abcd1234abcd1234")!,
-        ]
-    )
+    let isGenerateEnabled = true
+    let isValidateEnabled = true
+    
+    let loadedChecksumFile: String? = "checksum.sha256"
     
     @Published var checksumType: ChecksumType = .sha256
     
@@ -66,6 +64,8 @@ final class MockRootViewModel: RootViewModelProtocol {
     func loadChecksums() {}
     
     func validateChecksums() {}
+    
+    func viewChecksums() {}
 }
 
 #endif
@@ -78,10 +78,13 @@ final class RootViewModel: RootViewModelProtocol {
     
     @Published var checksumType: ChecksumType = .sha256
     
-    @Published private(set) var checksumsFileURL: URL?
-    @Published private(set) var checksums: ChecksumFile?
+    var loadedChecksumFile: String? {
+        self.checksumsFileURL?.lastPathComponent
+    }
     
-    var isActionEnabled: Bool {
+    @Published private(set) var checksumsFileURL: URL?
+    
+    var isGenerateEnabled: Bool {
         if case .progress = self.state {
             return false
         }
@@ -89,8 +92,12 @@ final class RootViewModel: RootViewModelProtocol {
         return false == self.files.isEmpty
     }
     
+    var isValidateEnabled: Bool {
+        self.isGenerateEnabled && self.checksumsFileURL != nil
+    }
+    
     func generateChecksums() {
-        precondition(self.isActionEnabled)
+        precondition(self.isGenerateEnabled)
         
         Task { @MainActor in
             do {
@@ -107,10 +114,8 @@ final class RootViewModel: RootViewModelProtocol {
                 
                 self.state = .done("Done")
                 
-//                NSWorkspace.shared.open(url)
-                
-                self.checksums = try ChecksumFile(data: try Data(contentsOf: url))
                 self.checksumsFileURL = url
+                self.viewChecksums()
             }
             catch {
                 self.state = .error("\(error)")
@@ -129,9 +134,17 @@ final class RootViewModel: RootViewModelProtocol {
             return
         }
         
+        self.checksumsFileURL = url
+    }
+    
+    func viewChecksums() {
+        guard let checksumsFileURL else {
+            preconditionFailure()
+        }
+        
         do {
-            self.checksums = try ChecksumFile(data: try Data(contentsOf: url))
-            self.checksumsFileURL = url
+            let checksums = try ChecksumFile(data: try Data(contentsOf: checksumsFileURL))
+            ChecksumViewer.shared.viewChecksums(checksums)
         }
         catch {
             print("Failed to load checksums: \(error)")
