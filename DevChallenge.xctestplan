@@ -1,0 +1,44 @@
+{
+  "configurations" : [
+    {
+      "id" : "1D695D90-4010-47E0-93E1-DDA6629E1FFA",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:Dependencies\/ChecksumKit",
+          "identifier" : "ChecksumKit",
+          "name" : "ChecksumKit"
+        }
+      ]
+    },
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:DevChallenge.xcodeproj",
+      "identifier" : "DA0C50572CD575F400B846E5",
+      "name" : "DevChallenge"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Dependencies\/ChecksumKit",
+        "identifier" : "ChecksumKitTests",
+        "name" : "ChecksumKitTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:DevChallenge.xcodeproj",
+        "identifier" : "DA71A87F2CD634480029BBFF",
+        "name" : "DevChallengeTests"
+      }
+    }
+  ],
+  "version" : 1
+}

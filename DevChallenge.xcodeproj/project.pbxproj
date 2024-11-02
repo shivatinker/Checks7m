@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		DA0C53162CD57C9400B846E5 /* DevChallengeXPC.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = DA0C530A2CD57C9400B846E5 /* DevChallengeXPC.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		DAFEE0FB2CD6365B00EED27C /* ChecksumKit in Frameworks */ = {isa = PBXBuildFile; productRef = DAFEE0FA2CD6365B00EED27C /* ChecksumKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -17,6 +18,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = DA0C53092CD57C9400B846E5;
 			remoteInfo = DevChallengeXPC;
+		};
+		DA71A8872CD6347F0029BBFF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DA0C50502CD575F400B846E5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DA0C50572CD575F400B846E5;
+			remoteInfo = DevChallenge;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -37,6 +45,8 @@
 /* Begin PBXFileReference section */
 		DA0C50582CD575F400B846E5 /* DevChallenge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DevChallenge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DA0C530A2CD57C9400B846E5 /* DevChallengeXPC.xpc */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = DevChallengeXPC.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
+		DA71A8802CD634480029BBFF /* DevChallengeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DevChallengeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DA71A8892CD634AB0029BBFF /* DevChallenge.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = DevChallenge.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -63,6 +73,16 @@
 			path = DevChallengeXPC;
 			sourceTree = "<group>";
 		};
+		DA71A8812CD634480029BBFF /* DevChallengeTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = DevChallengeTests;
+			sourceTree = "<group>";
+		};
+		DAFEE0F72CD6362500EED27C /* Dependencies */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Dependencies;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +97,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DAFEE0FB2CD6365B00EED27C /* ChecksumKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DA71A87D2CD634480029BBFF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -86,8 +114,12 @@
 		DA0C504F2CD575F400B846E5 = {
 			isa = PBXGroup;
 			children = (
+				DAFEE0F72CD6362500EED27C /* Dependencies */,
+				DA71A8892CD634AB0029BBFF /* DevChallenge.xctestplan */,
 				DA0C505A2CD575F400B846E5 /* DevChallenge */,
 				DA0C530B2CD57C9400B846E5 /* DevChallengeXPC */,
+				DA71A8812CD634480029BBFF /* DevChallengeTests */,
+				DAFEE0F92CD6365B00EED27C /* Frameworks */,
 				DA0C50592CD575F400B846E5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -97,8 +129,16 @@
 			children = (
 				DA0C50582CD575F400B846E5 /* DevChallenge.app */,
 				DA0C530A2CD57C9400B846E5 /* DevChallengeXPC.xpc */,
+				DA71A8802CD634480029BBFF /* DevChallengeTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		DAFEE0F92CD6365B00EED27C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -145,10 +185,34 @@
 			);
 			name = DevChallengeXPC;
 			packageProductDependencies = (
+				DAFEE0FA2CD6365B00EED27C /* ChecksumKit */,
 			);
 			productName = DevChallengeXPC;
 			productReference = DA0C530A2CD57C9400B846E5 /* DevChallengeXPC.xpc */;
 			productType = "com.apple.product-type.xpc-service";
+		};
+		DA71A87F2CD634480029BBFF /* DevChallengeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DA71A8842CD634480029BBFF /* Build configuration list for PBXNativeTarget "DevChallengeTests" */;
+			buildPhases = (
+				DA71A87C2CD634480029BBFF /* Sources */,
+				DA71A87D2CD634480029BBFF /* Frameworks */,
+				DA71A87E2CD634480029BBFF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DA71A8882CD6347F0029BBFF /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				DA71A8812CD634480029BBFF /* DevChallengeTests */,
+			);
+			name = DevChallengeTests;
+			packageProductDependencies = (
+			);
+			productName = DevChallengeTests;
+			productReference = DA71A8802CD634480029BBFF /* DevChallengeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -165,6 +229,9 @@
 						LastSwiftMigration = 1610;
 					};
 					DA0C53092CD57C9400B846E5 = {
+						CreatedOnToolsVersion = 16.1;
+					};
+					DA71A87F2CD634480029BBFF = {
 						CreatedOnToolsVersion = 16.1;
 					};
 				};
@@ -185,6 +252,7 @@
 			targets = (
 				DA0C50572CD575F400B846E5 /* DevChallenge */,
 				DA0C53092CD57C9400B846E5 /* DevChallengeXPC */,
+				DA71A87F2CD634480029BBFF /* DevChallengeTests */,
 			);
 		};
 /* End PBXProject section */
@@ -198,6 +266,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		DA0C53082CD57C9400B846E5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DA71A87E2CD634480029BBFF /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -221,6 +296,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DA71A87C2CD634480029BBFF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -228,6 +310,11 @@
 			isa = PBXTargetDependency;
 			target = DA0C53092CD57C9400B846E5 /* DevChallengeXPC */;
 			targetProxy = DA0C53142CD57C9400B846E5 /* PBXContainerItemProxy */;
+		};
+		DA71A8882CD6347F0029BBFF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DA0C50572CD575F400B846E5 /* DevChallenge */;
+			targetProxy = DA71A8872CD6347F0029BBFF /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -459,6 +546,36 @@
 			};
 			name = Release;
 		};
+		DA71A8852CD634480029BBFF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2V8DLQ6638;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.shivatinker.DevChallengeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		DA71A8862CD634480029BBFF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2V8DLQ6638;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.shivatinker.DevChallengeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -489,7 +606,23 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		DA71A8842CD634480029BBFF /* Build configuration list for PBXNativeTarget "DevChallengeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DA71A8852CD634480029BBFF /* Debug */,
+				DA71A8862CD634480029BBFF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DAFEE0FA2CD6365B00EED27C /* ChecksumKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ChecksumKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = DA0C50502CD575F400B846E5 /* Project object */;
 }

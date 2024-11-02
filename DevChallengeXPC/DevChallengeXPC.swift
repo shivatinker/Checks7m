@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import ChecksumKit
 
-@objc public protocol Listener {
+@objc public protocol DevChallengeXPCListener {
     func handleProgress(_ progress: Double)
 }
 
@@ -29,7 +30,7 @@ class DevChallengeXPC: NSObject, DevChallengeXPCProtocol {
         type: ChecksumType,
         completionHandler: @escaping (Data?, Error?) -> Void
     ) {
-        let listener = self.connection.remoteObjectProxy as! Listener
+        let listener = self.connection.remoteObjectProxy as! DevChallengeXPCListener
         
         do {
             let generator = ChecksumGenerator(checksumType: type)

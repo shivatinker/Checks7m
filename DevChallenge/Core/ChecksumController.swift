@@ -5,6 +5,7 @@
 //  Created by Andrii Zinoviev on 02.11.2024.
 //
 
+import ChecksumKit
 import DevChallengeXPC
 import Foundation
 
@@ -26,7 +27,7 @@ actor ChecksumController {
     ) async throws -> Data {
         let connectionToService = NSXPCConnection(serviceName: "com.shivatinker.DevChallengeXPC")
         connectionToService.remoteObjectInterface = NSXPCInterface(with: DevChallengeXPCProtocol.self)
-        connectionToService.exportedInterface = NSXPCInterface(with: Listener.self)
+        connectionToService.exportedInterface = NSXPCInterface(with: DevChallengeXPCListener.self)
         
         connectionToService.exportedObject = ListenerImpl {
             progressHandler($0)
@@ -59,7 +60,7 @@ actor ChecksumController {
 }
 
 @objc
-private final class ListenerImpl: NSObject, Listener {
+private final class ListenerImpl: NSObject, DevChallengeXPCListener {
     let progressHandler: (Double) -> Void
     
     init(progressHandler: @escaping (Double) -> Void) {
