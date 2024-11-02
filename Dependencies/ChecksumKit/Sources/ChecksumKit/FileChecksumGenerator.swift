@@ -25,6 +25,13 @@ public enum ChecksumType: Int, CaseIterable, Sendable {
         case .sha256: return SHA256ChecksumContext.self
         }
     }
+    
+    public var fileExtension: String {
+        switch self {
+        case .md5: return "md5"
+        case .sha256: return "sha256"
+        }
+    }
 }
 
 public struct FileChecksumGenerator {

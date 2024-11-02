@@ -16,14 +16,14 @@ import Foundation
 @objc public protocol DevChallengeXPCProtocol {
     func generateChecksumsFile(
         for files: [String],
-        outputURL: String,
+        outputDirectoryPath: String,
         type: ChecksumType,
         completionHandler: @escaping (String?, Error?) -> Void
     )
     
     func validateChecksums(
         for files: [String],
-        checksumFileURL: String,
+        checksumFilePath: String,
         completionHandler: @escaping (Error?) -> Void
     )
 }
@@ -34,7 +34,7 @@ class DevChallengeXPC: NSObject, DevChallengeXPCProtocol {
     
     func generateChecksumsFile(
         for files: [String],
-        outputURL: String,
+        outputDirectoryPath: String,
         type: ChecksumType,
         completionHandler: @escaping (String?, Error?) -> Void
     ) {
@@ -42,8 +42,10 @@ class DevChallengeXPC: NSObject, DevChallengeXPCProtocol {
             let file = try self.generateChecksums(for: files, type: type)
             
             let data = file.makeData()
-            try data.write(to: URL(filePath: outputURL))
-            completionHandler(outputURL, nil)
+            
+            let outputURL = URL(filePath: outputDirectoryPath).appending(path: "checksum.\(type.fileExtension)")
+            try data.write(to: outputURL)
+            completionHandler(outputURL.path, nil)
         }
         catch {
             completionHandler(nil, error)
@@ -52,7 +54,7 @@ class DevChallengeXPC: NSObject, DevChallengeXPCProtocol {
     
     func validateChecksums(
         for files: [String],
-        checksumFileURL: String,
+        checksumFilePath: String,
         completionHandler: @escaping (Error?) -> Void
     ) {
         do {
@@ -61,7 +63,7 @@ class DevChallengeXPC: NSObject, DevChallengeXPCProtocol {
             let validator = ChecksumValidator()
             try validator.validate(
                 files: files,
-                checksumFilePath: checksumFileURL,
+                checksumFilePath: checksumFilePath,
                 progressHandler: {
                     listener.handleProgress($0)
                 }

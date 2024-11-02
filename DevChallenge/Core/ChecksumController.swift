@@ -30,8 +30,8 @@ actor ChecksumController {
         let path = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<String, Swift.Error>) in
             proxy.generateChecksumsFile(
                 for: files.map { $0.path(percentEncoded: false) },
-                outputURL: "/Users/shivatinker/stuff.sha256",
-                type: .sha256
+                outputDirectoryPath: "/Users/shivatinker",
+                type: type
             ) { path, error in
                 if let error {
                     continuation.resume(throwing: error)
@@ -61,7 +61,7 @@ actor ChecksumController {
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Swift.Error>) in
                 proxy.validateChecksums(
                     for: files.map(\.path),
-                    checksumFileURL: checksumFileURL.path
+                    checksumFilePath: checksumFileURL.path
                 ) { error in
                     if let error {
                         continuation.resume(throwing: error)

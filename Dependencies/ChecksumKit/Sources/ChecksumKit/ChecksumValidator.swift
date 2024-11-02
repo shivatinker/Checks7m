@@ -52,10 +52,12 @@ public struct ChecksumValidator {
     private func checksumType(path: String) throws -> ChecksumType {
         let url = URL(filePath: path)
         
-        switch url.pathExtension {
-        case "md5": return .md5
-        case "sha256": return .sha256
-        default: throw Error("Unsupported checksum type: \(url.pathExtension).")
+        for type in ChecksumType.allCases {
+            if type.fileExtension == url.pathExtension {
+                return type
+            }
         }
+        
+        throw Error("Unsupported checksum type for .\(url.pathExtension).")
     }
 }
