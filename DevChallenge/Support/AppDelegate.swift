@@ -31,4 +31,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.setFrame(from: "Main")
         }
     }
+    
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        true
+    }
 }

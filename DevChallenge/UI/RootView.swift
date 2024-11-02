@@ -16,11 +16,42 @@ struct RootView<Model: RootViewModelProtocol>: View {
     
     var body: some View {
         VStack {
-            Text("Hello, World!")
+            switch self.model.state {
+            case .ready:
+                Text("Ready")
+                
+            case let .progress(progress):
+                if let progress {
+                    ProgressView(value: progress)
+                }
+                else {
+                    ProgressView()
+                        .progressViewStyle(LinearProgressViewStyle())
+                }
+                
+            case let .done(digest):
+                Text(digest)
+                
+            case let .error(error):
+                Text(error)
+                    .foregroundStyle(.red)
+            }
             
-            Button("Start", action: self.model.start)
-                .disabled(self.model.isStarted)
+            Button("Open") {
+                let panel = NSOpenPanel()
+                panel.allowsMultipleSelection = false
+                
+                let response = panel.runModal()
+                
+                guard response == .OK, let url = panel.url else {
+                    return
+                }
+                
+                self.model.processFile(at: url)
+            }
+            .disabled(self.model.state.isStartDisabled)
         }
+        .frame(width: 200)
         .frame(width: 600, height: 400)
     }
 }
@@ -32,11 +63,8 @@ struct RootView<Model: RootViewModelProtocol>: View {
 }
 
 final class MockRootViewModel: RootViewModelProtocol {
-    @Published private(set) var isStarted: Bool = false
-    
-    func start() {
-        self.isStarted.toggle()
-    }
+    let state: RootViewState = .progress(nil)
+    func processFile(at url: URL) {}
 }
 
 #endif

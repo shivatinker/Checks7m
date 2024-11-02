@@ -5,33 +5,58 @@
 //  Created by Andrii Zinoviev on 01.11.2024.
 //
 
-import DevChallengeXPC
 import Foundation
+
+enum RootViewState {
+    case ready
+    case progress(Double?)
+    case done(String)
+    case error(String)
+    
+    var isStartDisabled: Bool {
+        switch self {
+        case .ready: return false
+        case .progress: return true
+        case .done: return false
+        case .error: return false
+        }
+    }
+}
 
 @MainActor
 protocol RootViewModelProtocol: ObservableObject {
-    var isStarted: Bool { get }
+    var state: RootViewState { get }
     
-    func start()
+    func processFile(at url: URL)
 }
 
 final class RootViewModel: RootViewModelProtocol {
-    @Published private(set) var isStarted: Bool = false
+    private let controller = ChecksumController()
     
-    func start() {
-        self.isStarted.toggle()
+    @Published private(set) var state: RootViewState = .ready
+    
+    func processFile(at url: URL) {
+        precondition(false == self.state.isStartDisabled)
         
-        let connectionToService = NSXPCConnection(serviceName: "com.shivatinker.DevChallengeXPC")
-        connectionToService.remoteObjectInterface = NSXPCInterface(with: DevChallengeXPCProtocol.self)
-        connectionToService.resume()
-        
-        if let proxy = connectionToService.remoteObjectProxy as? DevChallengeXPCProtocol {
-            proxy.performCalculation(firstNumber: 23, secondNumber: 19) { result in
-                NSLog("Result of calculation is: \(result)")
+        Task { @MainActor in
+            do {
+                self.state = .progress(nil)
+                
+                let data = try await self.controller.generateChecksum(
+                    forFileAt: url,
+                    type: .sha256
+                ) { progress in
+                    Task { @MainActor in
+                        self.state = .progress(progress)
+                    }
+                }
+                
+                let hexDigest = data.map { String(format: "%02hhx", $0) }.joined()
+                self.state = .done(hexDigest)
             }
-        }
-        else {
-            print("Could not connect to service")
+            catch {
+                self.state = .error("\(error)")
+            }
         }
     }
 }
