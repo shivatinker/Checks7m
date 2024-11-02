@@ -25,3 +25,11 @@ extension Data {
         guard self.count > 0 else { return nil }
     }
 }
+
+extension FileManager {
+    public func isDirectory(url: URL) -> Bool {
+        var isDirectory: ObjCBool = false
+        self.fileExists(atPath: url.path, isDirectory: &isDirectory)
+        return isDirectory.boolValue
+    }
+}

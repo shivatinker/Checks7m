@@ -19,10 +19,10 @@ enum RootViewState {
 @MainActor
 protocol RootViewModelProtocol: ObservableObject {
     var state: RootViewState { get }
-    var files: Set<URL> { get }
+    var files: [URL: FileItem] { get }
     var checksumType: ChecksumType { get set }
     
-    var loadedChecksumFile: String? { get }
+    var loadedChecksumFile: URL? { get }
     
     var isGenerateEnabled: Bool { get }
     var isValidateEnabled: Bool { get }
@@ -45,16 +45,16 @@ final class MockRootViewModel: RootViewModelProtocol {
     let isGenerateEnabled = true
     let isValidateEnabled = true
     
-    let loadedChecksumFile: String? = "checksum.sha256"
+    let loadedChecksumFile: URL? = URL(filePath: "checksum.sha256")
     
     @Published var checksumType: ChecksumType = .sha256
     
-    @Published private(set) var files: Set<URL> = [
-        URL(filePath: "/var/tmp/file1.pdf"),
-        URL(filePath: "/var/tmp/file2.pdf"),
-        URL(filePath: "/var/tmp/file3.pdf"),
-        URL(filePath: "/var/tmp/file4.pdf"),
-        URL(filePath: "/var/tmp/file5.pdf"),
+    @Published private(set) var files: [URL: FileItem] = [
+        URL(filePath: "/var/tmp/file1.pdf"): FileItem(isDirectory: false),
+        URL(filePath: "/var/tmp/file2.pdf"): FileItem(isDirectory: false),
+        URL(filePath: "/var/tmp/dir1"): FileItem(isDirectory: true),
+        URL(filePath: "/var/tmp/file4.pdf"): FileItem(isDirectory: false),
+        URL(filePath: "/var/tmp/dir2"): FileItem(isDirectory: true),
     ]
     
     func addFiles() {}
@@ -76,19 +76,19 @@ final class MockRootViewModel: RootViewModelProtocol {
 
 #endif
 
+struct FileItem {
+    let isDirectory: Bool
+}
+
 final class RootViewModel: RootViewModelProtocol {
     private let controller = ChecksumController()
     
     @Published private(set) var state: RootViewState = .ready
-    @Published private(set) var files: Set<URL> = []
+    @Published private(set) var files: [URL: FileItem] = [:]
     
     @Published var checksumType: ChecksumType = .sha256
     
-    var loadedChecksumFile: String? {
-        self.checksumsFileURL?.lastPathComponent
-    }
-    
-    @Published private(set) var checksumsFileURL: URL?
+    @Published private(set) var loadedChecksumFile: URL?
     
     var isGenerateEnabled: Bool {
         if case .progress = self.state {
@@ -99,7 +99,7 @@ final class RootViewModel: RootViewModelProtocol {
     }
     
     var isValidateEnabled: Bool {
-        self.isGenerateEnabled && self.checksumsFileURL != nil
+        self.isGenerateEnabled && self.loadedChecksumFile != nil
     }
     
     func generateChecksums() {
@@ -110,7 +110,7 @@ final class RootViewModel: RootViewModelProtocol {
                 self.state = .progress(nil)
                 
                 let url = try await self.controller.generateChecksum(
-                    for: Array(self.files),
+                    for: Array(self.files.keys),
                     type: self.checksumType
                 ) { progress in
                     Task { @MainActor in
@@ -120,7 +120,7 @@ final class RootViewModel: RootViewModelProtocol {
                 
                 self.state = .done("Done")
                 
-                self.checksumsFileURL = url
+                self.loadChecksums(url)
                 self.viewChecksums()
             }
             catch {
@@ -144,16 +144,16 @@ final class RootViewModel: RootViewModelProtocol {
     }
     
     func loadChecksums(_ url: URL) {
-        self.checksumsFileURL = url
+        self.loadedChecksumFile = url
     }
     
     func viewChecksums() {
-        guard let checksumsFileURL else {
+        guard let loadedChecksumFile else {
             preconditionFailure()
         }
         
         do {
-            let checksums = try ChecksumFile(data: try Data(contentsOf: checksumsFileURL))
+            let checksums = try ChecksumFile(data: try Data(contentsOf: loadedChecksumFile))
             ChecksumViewer.shared.viewChecksums(checksums)
         }
         catch {
@@ -176,11 +176,17 @@ final class RootViewModel: RootViewModelProtocol {
     }
     
     func addFiles(_ urls: [URL]) {
-        self.files.formUnion(urls)
+        for url in urls {
+            let item = FileItem(
+                isDirectory: FileManager.default.isDirectory(url: url)
+            )
+            
+            self.files[url] = item
+        }
     }
     
     func validateChecksums() {
-        guard let checksumsFileURL else {
+        guard let loadedChecksumFile else {
             preconditionFailure()
         }
         
@@ -189,8 +195,8 @@ final class RootViewModel: RootViewModelProtocol {
                 self.state = .progress(nil)
                 
                 let result = await self.controller.validateChecksums(
-                    for: Array(self.files),
-                    checksumFileURL: checksumsFileURL,
+                    for: Array(self.files.keys),
+                    checksumFileURL: loadedChecksumFile,
                     progressHandler: { progress in
                         Task { @MainActor in
                             if case .progress = self.state {
@@ -210,6 +216,8 @@ final class RootViewModel: RootViewModelProtocol {
     }
     
     func removeFiles(_ files: Set<URL>) {
-        self.files.subtract(files)
+        for file in files {
+            self.files[file] = nil
+        }
     }
 }

@@ -25,7 +25,7 @@ public struct ChecksumFile {
             throw Error.failedToDecodeString
         }
         
-        let items = string.split(separator: /\n+/)
+        let items = string.split(separator: /[\r\n]+/)
         
         for item in items {
             let match = item.wholeMatch(of: /([0-9a-fA-F]+)\s\s(.+)/)

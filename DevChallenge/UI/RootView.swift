@@ -27,11 +27,15 @@ struct RootView<Model: RootViewModelProtocol>: View {
                     Divider()
                     
                     List(
-                        self.model.files.sorted(using: KeyPathComparator(\.absoluteString)),
-                        id: \.self,
+                        self.model.files.sorted(using: KeyPathComparator(\.key.absoluteString)),
+                        id: \.key,
                         selection: self.$selection
-                    ) { url in
-                        Text(url.lastPathComponent)
+                    ) { (url: URL, file: FileItem) in
+                        HStack {
+                            Image(systemName: file.isDirectory ? "folder" : "document")
+                            
+                            Text(url.lastPathComponent)
+                        }
                     }
                     .listStyle(.plain)
                     .dropDestination(
@@ -195,9 +199,19 @@ struct RootView<Model: RootViewModelProtocol>: View {
 
 private struct DropBox: View {
     let isTargeted: Bool
-    let loadedFile: String?
+    let loadedFile: URL?
     
     var body: some View {
+        if let loadedFile {
+            self.content
+                .draggable(loadedFile)
+        }
+        else {
+            self.content
+        }
+    }
+    
+    private var content: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 10)
                 .foregroundStyle(.quinary)
@@ -211,7 +225,7 @@ private struct DropBox: View {
             if let loadedFile {
                 HStack {
                     Image(systemName: "text.document")
-                    Text(loadedFile)
+                    Text(loadedFile.lastPathComponent)
                 }
             }
             else {
