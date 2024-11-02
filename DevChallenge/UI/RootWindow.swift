@@ -39,10 +39,38 @@ final class RootWindow: NSWindow {
         self.model.saveChecksums()
     }
     
+    @objc
+    func generateChecksums(_ sender: Any?) {
+        self.model.generateChecksums()
+    }
+    
+    @objc
+    func validateChecksums(_ sender: Any?) {
+        self.model.validateChecksums()
+    }
+    
+    override func keyDown(with event: NSEvent) {
+        switch event.keyCode {
+        case 53: // Esc
+            self.model.cancel()
+            
+        default:
+            return
+        }
+    }
+    
     override func responds(to aSelector: Selector!) -> Bool {
         MainActor.assumeIsolated {
             if aSelector == #selector(self.saveDocument(_:)) {
                 return self.model.loadedChecksumFile != nil
+            }
+            
+            if aSelector == #selector(self.generateChecksums(_:)) {
+                return self.model.isGenerateEnabled
+            }
+            
+            if aSelector == #selector(self.validateChecksums(_:)) {
+                return self.model.isValidateEnabled
             }
             
             return super.responds(to: aSelector)

@@ -69,6 +69,16 @@
                                     <action selector="openDocument:" target="-1" id="bVn-NM-KNZ"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Generate Checksums" keyEquivalent="r" id="w3l-5e-XXK">
+                                <connections>
+                                    <action selector="generateChecksums:" target="-1" id="JlM-uP-nY9"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Validate Checksums" keyEquivalent="e" id="2b4-dt-X12">
+                                <connections>
+                                    <action selector="validateChecksums:" target="-1" id="Xe6-oJ-XRX"/>
+                                </connections>
+                            </menuItem>
                             <menuItem title="Open Recent" id="tXI-mr-wws">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Open Recent" systemMenu="recentDocuments" id="oas-Oc-fiZ">
