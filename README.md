@@ -1,3 +1,9 @@
+## Checks7m
+Little macOS program to generate checksums of hierarchies.
+
+![image](https://github.com/user-attachments/assets/f1651b0d-58b1-42ea-b373-14f8f1285358)
+![image](https://github.com/user-attachments/assets/d166f2cf-89a2-4492-978f-188ac292bf5f)
+
 Hey guys, hope you will enjoy my checksummer (nice brand name btw).
 
 **Core Features:**
